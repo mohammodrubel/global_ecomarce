@@ -5,7 +5,7 @@ import { Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useGetAllProductsQuery } from "@/redux/fetchers/products/productsApi";
-import { Product } from "@/lib/type";
+import { Product } from "@/lib/Types";
 import ProductCard from "@/components/ProductCard";
 import ProductCardSkeleton from "../_ProductCardSkeleton";
 import ErrorState from "../_ErrorState";

@@ -9,9 +9,8 @@ import { Badge } from "@/components/ui/badge";
 
 
 
-export default function ProductTableRow({ product }) {
-  const [hoveredProduct, setHoveredProduct] =
-    (useState < number) | (null > null);
+export default function ProductTableRow({ product }: { product: any }) {
+  const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
 
   return (
     <div
@@ -65,7 +64,7 @@ export default function ProductTableRow({ product }) {
           <span className="text-sm text-gray-500">({product.reviews})</span>
         </div>
         <div className="flex flex-wrap gap-1">
-          {product.features.map((feature, index) => (
+          {product.features.map((feature: string, index: number) => (
             <span
               key={index}
               className="text-xs bg-[#1C398E]/10 text-[#1C398E] px-2 py-1 rounded-full"

@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, FormEvent } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "@/store";
+import { RootState } from "@/redux/store";
 
 export function Header() {
   const [search, setSearch] = useState<string>("");

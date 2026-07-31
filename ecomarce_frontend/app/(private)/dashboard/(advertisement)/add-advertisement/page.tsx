@@ -40,9 +40,9 @@ const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters"),
   productId: z.string().min(1, "Please select a product"),
   action: z.enum(ACTION_OPTIONS, {
-    required_error: "Please select an action",
+    message: "Please select an action",
   }),
-  active: z.boolean().default(false),
+  active: z.boolean(),
 });
 
 type AdvertisementFormValues = z.infer<typeof formSchema>;

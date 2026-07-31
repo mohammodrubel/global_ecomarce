@@ -3,8 +3,6 @@ import { tagTypes } from "@/redux/TagTypes";
 
 // Brand type
 export interface Brand {
-  message(message: any): unknown;
-  data(data: any): unknown;
   id: string;
   logo: string;
   name: string;
@@ -45,7 +43,7 @@ export const BrandApi = baseApi.injectEndpoints({
     }),
 
     // Update only brand logo
-    updateBrandImage: builder.mutation<Brand, { id: string; data: FormData }>({
+    updateBrandImage: builder.mutation<{ success: boolean; data: Brand }, { id: string; data: FormData }>({
       query: ({ id, data }) => ({
         url: `/brand/${id}`,
         method: "PATCH",
@@ -55,7 +53,7 @@ export const BrandApi = baseApi.injectEndpoints({
     }),
 
     // Get single brand
-    getSingleBrand: builder.query<Brand, string>({
+    getSingleBrand: builder.query<{ data: Brand }, string>({
       query: (id) => ({
         url: `/brand/${id}`,
         method: "GET",
