@@ -1,7 +1,6 @@
 "use client";
 
 import Banner from "@/components/Banner";
-import BlogHighlights from "@/components/BlogHighlights";
 import BrandLogo from "@/components/BrandLogo";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import { Header } from "@/components/Header";
@@ -24,10 +23,9 @@ export default function HomePage() {
           <NewArrivals />
           <HomePageProduct />
           <BrandLogo />
-          {/* <BlogHighlights /> */}
         </div>
       </div>
-      <Footer></Footer>
+      <Footer />
     </>
   );
 }

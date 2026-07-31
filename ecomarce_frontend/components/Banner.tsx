@@ -5,25 +5,28 @@ import HeroSection from "./HeroSection"
 
 function Banner() {
   return (
-    <div className="w-full p-2 sm:p-3 md:p-4">
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 items-stretch">
-        {/* Category Sidebar */}
-        <div className="hidden xl:block xl:col-span-1">
-          <Sidebar />
-        </div>
+    <div className="flex flex-col lg:flex-row w-full">
+      {/* Sidebar - hidden on mobile, shown from xl */}
+      <div className="lg:w-1/5 hidden xl:block">
+        <Sidebar />
+      </div>
 
-        {/* HeroSection */}
-        <div className="col-span-1 xl:col-span-2 h-full">
-          <HeroSection />
-        </div>
+      {/* Main content */}
+      <main className="flex-1 w-full p-2 sm:p-3 md:p-4">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 md:gap-5 lg:gap-6 xl:grid-cols-4">
+          {/* HeroSection - full on mobile, 3/4 on xl */}
+          <div className="col-span-1 xl:col-span-3">
+            <HeroSection />
+          </div>
 
-        {/* SpecialOfferSlider */}
-        <div className="col-span-1 xl:col-span-1 h-full">
-          <div className="h-full flex items-stretch justify-center">
-            <SpecialOfferSlider />
+          {/* SpecialOfferSlider - full on mobile, 1/4 on xl */}
+          <div className="col-span-1 xl:col-span-1">
+            <div className="w-full">
+              <SpecialOfferSlider />
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

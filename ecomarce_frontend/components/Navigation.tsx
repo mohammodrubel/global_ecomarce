@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Menu as MenuIcon, Sparkles } from "lucide-react";
 import {
@@ -7,10 +8,19 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
@@ -60,8 +70,15 @@ const NAV_ITEMS: NavItem[] = [
 
 export function Navigation() {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [openSub, setOpenSub] = useState<string | null>(null);
 
   const isActive = (href: string) => pathname === href;
+
+  const closeMobile = () => {
+    setMobileOpen(false);
+    setOpenSub(null);
+  };
 
   return (
     <div className="bg-[#1C398E] border-b border-[#152B6E] shadow-sm">
@@ -70,61 +87,79 @@ export function Navigation() {
           <div className="flex items-center justify-between py-2">
             {/* Mobile */}
             <div className="lg:hidden w-full">
-              <div className="grid grid-cols-2 items-center justify-between">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
+              <div className="flex items-center justify-between gap-2">
+                <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                  <SheetTrigger asChild>
                     <Button
                       variant="ghost"
-                      size="icon"
-                      className="text-white hover:bg-[#152B6E] focus:bg-[#152B6E] rounded-md"
+                      className="flex-1 justify-start text-white hover:bg-[#152B6E] focus:bg-[#152B6E] rounded-lg gap-2 h-10 px-3"
                     >
-                      <MenuIcon className="h-5 w-5" />
-                      <span className="sr-only">Open menu</span>
+                      <MenuIcon className="h-4 w-4" />
+                      <span className="font-medium text-sm">Menu</span>
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    className="w-56 bg-[#1C398E] text-white border border-[#152B6E] mt-2 rounded-md shadow-xl"
-                    align="start"
-                    sideOffset={10}
+                  </SheetTrigger>
+                  <SheetContent
+                    side="left"
+                    className="w-[85vw] max-w-sm p-0 bg-[#1C398E] text-white border-r border-[#152B6E]"
                   >
-                    {NAV_ITEMS.map((item) =>
-                      item.subItems ? (
-                        <DropdownMenuSub key={item.label}>
-                          <DropdownMenuSubTrigger className="hover:bg-[#152B6E] focus:bg-[#152B6E] px-4 py-2.5 rounded-sm transition-colors">
-                            {item.label}
-                          </DropdownMenuSubTrigger>
-                          <DropdownMenuSubContent className="bg-[#1C398E] text-white border border-[#152B6E] w-full rounded-md shadow-xl">
-                            {item.subItems.map((subItem) => (
-                              <DropdownMenuItem
-                                key={subItem.label}
-                                className="hover:bg-[#152B6E] focus:bg-[#152B6E] px-4 py-2.5 rounded-sm transition-colors"
-                                asChild
-                              >
-                                <Link href={subItem.href} className="w-full">
+                    <SheetHeader className="p-4 border-b border-[#152B6E]">
+                      <SheetTitle className="text-white text-left text-lg">
+                        Menu
+                      </SheetTitle>
+                    </SheetHeader>
+                    <nav className="p-3 overflow-y-auto h-[calc(100%-70px)]">
+                      {NAV_ITEMS.map((item) =>
+                        item.subItems ? (
+                          <Collapsible
+                            key={item.label}
+                            open={openSub === item.label}
+                            onOpenChange={(o) =>
+                              setOpenSub(o ? item.label : null)
+                            }
+                          >
+                            <CollapsibleTrigger asChild>
+                              <button className="w-full flex items-center justify-between px-3 py-3 rounded-lg text-sm font-medium hover:bg-[#152B6E] transition-colors">
+                                <span>{item.label}</span>
+                                <ChevronDown
+                                  className={`h-4 w-4 transition-transform duration-200 ${
+                                    openSub === item.label ? "rotate-180" : ""
+                                  }`}
+                                />
+                              </button>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="mt-1 mb-1 ml-3 border-l border-white/15 pl-3 space-y-0.5">
+                              {item.subItems.map((subItem) => (
+                                <Link
+                                  key={subItem.label}
+                                  href={subItem.href}
+                                  onClick={closeMobile}
+                                  className="block px-3 py-2 rounded-md text-sm text-white/80 hover:text-white hover:bg-[#152B6E] transition-colors"
+                                >
                                   {subItem.label}
                                 </Link>
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuSubContent>
-                        </DropdownMenuSub>
-                      ) : (
-                        <DropdownMenuItem
-                          key={item.label}
-                          className="hover:bg-[#152B6E] focus:bg-[#152B6E] px-4 py-2.5 rounded-sm transition-colors"
-                          asChild
-                        >
-                          <Link href={item.href || "#"} className="w-full">
+                              ))}
+                            </CollapsibleContent>
+                          </Collapsible>
+                        ) : (
+                          <Link
+                            key={item.label}
+                            href={item.href || "#"}
+                            onClick={closeMobile}
+                            className={`block px-3 py-3 rounded-lg text-sm font-medium transition-colors ${
+                              isActive(item.href || "")
+                                ? "bg-[#152B6E] text-cyan-400"
+                                : "hover:bg-[#152B6E]"
+                            }`}
+                          >
                             {item.label}
                           </Link>
-                        </DropdownMenuItem>
-                      )
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                        )
+                      )}
+                    </nav>
+                  </SheetContent>
+                </Sheet>
 
-                <div className="ml-auto">
-                  <Sidebar />
-                </div>
+                <Sidebar />
               </div>
             </div>
 

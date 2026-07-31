@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight, Menu } from "lucide-react";
+import { ChevronRight, LayoutGrid, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -151,7 +151,7 @@ function MobileSidebar() {
           className="m-2 bg-[#1C398E] text-white"
           disabled
         >
-          <Menu className="h-4 w-4 mr-2" />
+          <LayoutGrid className="h-4 w-4" />
           Categories
         </Button>
 
@@ -213,9 +213,8 @@ function MobileSidebar() {
       <Sheet>
         <SheetTrigger asChild>
           <Button
-            variant="outline"
-            size="sm"
-            className="m-2 bg-[#1C398E] text-white"
+            variant="ghost"
+            className="justify-start bg-white/10 text-white hover:bg-white/20 hover:text-white border border-white/20 rounded-lg gap-2 h-10 px-3 font-medium text-sm"
           >
             <Menu className="h-4 w-4 mr-2" />
             Categories

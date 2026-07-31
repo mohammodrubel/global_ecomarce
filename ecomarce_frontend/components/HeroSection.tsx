@@ -57,19 +57,19 @@ function HeroSection() {
   }
 
   return (
-    <section className="w-full h-full">
-      <div className="h-full">
-        {/* Left Side: Banner Slider (full width) */}
-        <div className="w-full h-full">
-          <Carousel className="w-full h-full relative" opts={{ loop: true }}>
-            <CarouselContent className="-ml-4 h-full">
+    <section className="w-full">
+      <div className="w-full">
+        {/* Banner Slider */}
+        <div className="w-full">
+          <Carousel className="w-full relative" opts={{ loop: true }}>
+            <CarouselContent className="-ml-4">
               {data.data.map((slider: any) => (
                 <CarouselItem
                   key={slider.id}
-                  className="pl-4 md:basis-full lg:basis-full h-full"
+                  className="pl-4 md:basis-full lg:basis-full"
                 >
-                  <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 h-full flex flex-col">
-                    <div className="p-4 sm:p-6 md:p-8 lg:p-10 flex-1 flex items-center">
+                  <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <div className="p-4 sm:p-6 md:p-8 lg:p-10">
                       <div className="grid md:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center">
                         {/* Left Side: Text */}
                         <div className="space-y-4 sm:space-y-5">

@@ -93,14 +93,14 @@ export function SpecialOffer({ offer }: { offer: any }) {
   const productPrice = product?.price;
 
   return (
-    <div className="relative isolate overflow-hidden rounded-3xl shadow-xl w-full h-full flex flex-col text-left bg-gradient-to-br from-slate-900 via-rose-900 to-red-900 text-white">
+    <div className="relative isolate overflow-hidden rounded-3xl shadow-xl w-full flex flex-col text-left bg-gradient-to-br from-slate-900 via-rose-900 to-red-900 text-white">
       {/* Hot deal ribbon */}
       <div className="absolute top-4 left-4 z-10 inline-flex items-center gap-1.5 bg-gradient-to-r from-red-500 to-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
         <Flame className="w-3.5 h-3.5" />
         HOT DEAL
       </div>
 
-      <div className="relative p-5 sm:p-6 space-y-5 flex-1 flex flex-col justify-between">
+      <div className="relative p-5 sm:p-6 space-y-5">
         {/* Title + small image side by side */}
         <div className="flex items-center gap-4 pt-6">
           {/* Small product image */}

@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Heart, Search, ShoppingCart, User, Menu } from "lucide-react";
+import { Heart, Search, ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, FormEvent } from "react";
@@ -39,17 +39,8 @@ export function Header() {
       <div className="container mx-auto px-4">
         {/* Desktop: single row. Mobile: two rows */}
         <div className="flex items-center gap-2 sm:gap-4 lg:gap-8 py-3">
-          {/* Left: mobile menu + logo */}
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden hover:bg-slate-100"
-              aria-label="Open menu"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-
+          {/* Logo */}
+          <div className="flex items-center shrink-0">
             <Link
               href="/"
               className="focus:outline-none focus:ring-2 focus:ring-[#1C398E] focus:ring-offset-2 rounded-sm"
