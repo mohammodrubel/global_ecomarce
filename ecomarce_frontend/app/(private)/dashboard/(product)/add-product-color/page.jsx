@@ -127,8 +127,8 @@ function Page() {
         <Card className="shadow-lg border-0">
           <CardHeader className="pb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Palette className="h-6 w-6 text-blue-600" />
+              <div className="p-2 bg-[#1C398E]/10 rounded-lg">
+                <Palette className="h-6 w-6 text-[#1C398E]" />
               </div>
               <div>
                 <CardTitle className="text-2xl font-bold text-gray-800">
@@ -167,7 +167,7 @@ function Page() {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  className="w-full bg-[#1C398E] hover:bg-[#152B6E]"
                 >
                   {isLoading ? (
                     <>
@@ -210,7 +210,7 @@ function Page() {
             <CardContent>
               {isDataLoading ? (
                 <div className="flex justify-center items-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1C398E]"></div>
                 </div>
               ) : filteredColors.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
@@ -300,7 +300,7 @@ function Page() {
               <Button
                 onClick={handleUpdate}
                 disabled={isUpdating}
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                className="flex-1 bg-[#1C398E] hover:bg-[#152B6E]"
               >
                 {isUpdating ? (
                   <>

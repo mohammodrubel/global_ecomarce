@@ -25,7 +25,7 @@ export default function AdminLayout({
       <AdminSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-gradient-to-r from-blue-50 via-white to-purple-50 shadow-sm">
-          <SidebarTrigger className="-ml-1 p-2 rounded-lg hover:bg-blue-100 transition-colors duration-200 text-blue-600 hover:text-blue-800" />
+          <SidebarTrigger className="-ml-1 p-2 rounded-lg hover:bg-[#1C398E]/10 transition-colors duration-200 text-[#1C398E] hover:text-[#152B6E]" />
           <Separator
             orientation="vertical"
             className="mr-2 h-6 bg-gradient-to-b from-blue-200 to-purple-200"
@@ -35,7 +35,7 @@ export default function AdminLayout({
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink
                   href="/admin"
-                  className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
+                  className="text-[#1C398E] hover:text-[#152B6E] font-medium transition-colors duration-200"
                 >
                   Admin Dashboard
                 </BreadcrumbLink>

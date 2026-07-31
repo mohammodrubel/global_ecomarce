@@ -503,7 +503,7 @@ export default function ProductFormPage() {
           <Button
             type="submit"
             disabled={isUpdating}
-            className="min-w-32 bg-blue-600 hover:bg-blue-700"
+            className="min-w-32 bg-[#1C398E] hover:bg-[#152B6E]"
           >
             {isUpdating ? (
               <>

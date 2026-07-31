@@ -76,8 +76,8 @@ function DesktopSidebar() {
               variant="ghost"
               className={`w-full justify-between text-left px-3 py-2.5 h-auto transition-all duration-300 rounded-full group ${
                 hoveredCategory === category.name
-                  ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md scale-[1.02]"
-                  : "text-gray-700 hover:bg-blue-50"
+                  ? "bg-[#1C398E] text-white shadow-md scale-[1.02]"
+                  : "text-gray-700 hover:bg-[#1C398E]/10"
               }`}
             >
               <div className="flex items-center gap-3">
@@ -85,7 +85,7 @@ function DesktopSidebar() {
                   className={`flex items-center justify-center h-9 w-9 rounded-full transition-all duration-300 ${
                     hoveredCategory === category.name
                       ? "bg-white/25 backdrop-blur-sm"
-                      : "bg-blue-50 group-hover:bg-blue-100"
+                      : "bg-[#1C398E]/10 group-hover:bg-[#1C398E]/20"
                   }`}
                 >
                   <Image
@@ -119,7 +119,7 @@ function DesktopSidebar() {
                         <Button
                           key={subcategory}
                           variant="ghost"
-                          className="w-full justify-start text-left px-3 py-2 h-auto text-sm hover:bg-blue-50 hover:text-blue-600 transition-colors rounded-full"
+                          className="w-full justify-start text-left px-3 py-2 h-auto text-sm hover:bg-[#1C398E]/10 hover:text-[#1C398E] transition-colors rounded-full"
                         >
                           {subcategory}
                         </Button>
@@ -148,7 +148,7 @@ function MobileSidebar() {
         <Button
           variant="outline"
           size="sm"
-          className="m-2 bg-[#1A2D72] text-white"
+          className="m-2 bg-[#1C398E] text-white"
           disabled
         >
           <Menu className="h-4 w-4 mr-2" />
@@ -187,7 +187,7 @@ function MobileSidebar() {
             <Button
               variant="outline"
               size="sm"
-              className="m-2 bg-[#1A2D72] text-white"
+              className="m-2 bg-[#1C398E] text-white"
             >
               <Menu className="h-4 w-4 mr-2" />
               Categories
@@ -215,7 +215,7 @@ function MobileSidebar() {
           <Button
             variant="outline"
             size="sm"
-            className="m-2 bg-[#1A2D72] text-white"
+            className="m-2 bg-[#1C398E] text-white"
           >
             <Menu className="h-4 w-4 mr-2" />
             Categories

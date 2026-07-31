@@ -94,7 +94,7 @@ function TopCategories() {
                       
                       {/* Fixed height text container */}
                       <div className="h-12 flex items-center justify-center">
-                        <h3 className="font-semibold text-sm md:text-base text-gray-800 group-hover:text-blue-600 transition-colors line-clamp-2">
+                        <h3 className="font-semibold text-sm md:text-base text-gray-800 group-hover:text-[#1C398E] transition-colors line-clamp-2">
                           {category.name}
                         </h3>
                       </div>

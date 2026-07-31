@@ -142,7 +142,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
             {/* Product Badge (NEW, etc.) - Only show if badge exists */}
             {productBadge && (
-              <Badge className="bg-blue-500 border-0 text-white shadow-lg">
+              <Badge className="bg-[#1C398E] border-0 text-white shadow-lg">
                 {productBadge}
               </Badge>
             )}

@@ -120,7 +120,7 @@ function FeaturedProducts() {
 
                   {/* Badge */}
                   {product.badge && (
-                    <div className="absolute top-3 left-3 bg-blue-600 text-white text-xs sm:text-sm font-bold px-3 py-1 rounded-full shadow-md">
+                    <div className="absolute top-3 left-3 bg-[#1C398E] text-white text-xs sm:text-sm font-bold px-3 py-1 rounded-full shadow-md">
                       {product.badge}
                     </div>
                   )}

@@ -68,7 +68,7 @@ export default function ProductTableRow({ product }) {
           {product.features.map((feature, index) => (
             <span
               key={index}
-              className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full"
+              className="text-xs bg-[#1C398E]/10 text-[#1C398E] px-2 py-1 rounded-full"
             >
               {feature}
             </span>

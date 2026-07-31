@@ -48,6 +48,14 @@ const NAV_ITEMS: NavItem[] = [
       { label: "Addresses", href: "/account/addresses" },
     ],
   },
+  {
+    label: "About",
+    href: "/about",
+  },
+  {
+    label: "Contact",
+    href: "/contact",
+  },
 ];
 
 export function Navigation() {
@@ -56,7 +64,7 @@ export function Navigation() {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <div className="bg-slate-900 border-b border-slate-800 shadow-sm">
+    <div className="bg-[#1C398E] border-b border-[#152B6E] shadow-sm">
       <div className="container mx-auto px-4">
         <nav className="text-white" aria-label="Main navigation">
           <div className="flex items-center justify-between py-2">
@@ -68,28 +76,28 @@ export function Navigation() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-white hover:bg-slate-800 focus:bg-slate-800 rounded-md"
+                      className="text-white hover:bg-[#152B6E] focus:bg-[#152B6E] rounded-md"
                     >
                       <MenuIcon className="h-5 w-5" />
                       <span className="sr-only">Open menu</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
-                    className="w-56 bg-slate-900 text-white border border-slate-700 mt-2 rounded-md shadow-xl"
+                    className="w-56 bg-[#1C398E] text-white border border-[#152B6E] mt-2 rounded-md shadow-xl"
                     align="start"
                     sideOffset={10}
                   >
                     {NAV_ITEMS.map((item) =>
                       item.subItems ? (
                         <DropdownMenuSub key={item.label}>
-                          <DropdownMenuSubTrigger className="hover:bg-slate-800 focus:bg-slate-800 px-4 py-2.5 rounded-sm transition-colors">
+                          <DropdownMenuSubTrigger className="hover:bg-[#152B6E] focus:bg-[#152B6E] px-4 py-2.5 rounded-sm transition-colors">
                             {item.label}
                           </DropdownMenuSubTrigger>
-                          <DropdownMenuSubContent className="bg-slate-900 text-white border border-slate-700 w-full rounded-md shadow-xl">
+                          <DropdownMenuSubContent className="bg-[#1C398E] text-white border border-[#152B6E] w-full rounded-md shadow-xl">
                             {item.subItems.map((subItem) => (
                               <DropdownMenuItem
                                 key={subItem.label}
-                                className="hover:bg-slate-800 focus:bg-slate-800 px-4 py-2.5 rounded-sm transition-colors"
+                                className="hover:bg-[#152B6E] focus:bg-[#152B6E] px-4 py-2.5 rounded-sm transition-colors"
                                 asChild
                               >
                                 <Link href={subItem.href} className="w-full">
@@ -102,7 +110,7 @@ export function Navigation() {
                       ) : (
                         <DropdownMenuItem
                           key={item.label}
-                          className="hover:bg-slate-800 focus:bg-slate-800 px-4 py-2.5 rounded-sm transition-colors"
+                          className="hover:bg-[#152B6E] focus:bg-[#152B6E] px-4 py-2.5 rounded-sm transition-colors"
                           asChild
                         >
                           <Link href={item.href || "#"} className="w-full">
@@ -128,9 +136,9 @@ export function Navigation() {
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
-                        className={`group relative text-white px-4 py-2 h-auto text-sm xl:text-base font-medium rounded-md transition-colors hover:bg-slate-800 hover:text-white data-[state=open]:bg-slate-800 ${
+                        className={`group relative text-white px-4 py-2 h-auto text-sm xl:text-base font-medium rounded-md transition-colors hover:bg-[#152B6E] hover:text-white data-[state=open]:bg-[#152B6E] ${
                           isActive(item.href || "")
-                            ? "bg-slate-800 text-cyan-400"
+                            ? "bg-[#152B6E] text-cyan-400"
                             : ""
                         }`}
                         aria-haspopup="true"
@@ -149,13 +157,13 @@ export function Navigation() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
-                      className="bg-slate-900 text-white border border-slate-700 min-w-[220px] mt-2 rounded-md shadow-xl p-1"
+                      className="bg-[#1C398E] text-white border border-[#152B6E] min-w-[220px] mt-2 rounded-md shadow-xl p-1"
                       align="start"
                     >
                       {item.subItems.map((subItem) => (
                         <DropdownMenuItem
                           key={subItem.label}
-                          className="group/item hover:bg-slate-800 focus:bg-slate-800 px-3 py-2.5 rounded-sm transition-colors cursor-pointer"
+                          className="group/item hover:bg-[#152B6E] focus:bg-[#152B6E] px-3 py-2.5 rounded-sm transition-colors cursor-pointer"
                           asChild
                         >
                           <Link
@@ -173,9 +181,9 @@ export function Navigation() {
                   <Link
                     key={item.label}
                     href={item.href || "#"}
-                    className={`group relative text-white px-4 py-2 text-sm xl:text-base font-medium rounded-md transition-colors hover:bg-slate-800 ${
+                    className={`group relative text-white px-4 py-2 text-sm xl:text-base font-medium rounded-md transition-colors hover:bg-[#152B6E] ${
                       isActive(item.href || "")
-                        ? "bg-slate-800 text-cyan-400"
+                        ? "bg-[#152B6E] text-cyan-400"
                         : ""
                     }`}
                     aria-current={
