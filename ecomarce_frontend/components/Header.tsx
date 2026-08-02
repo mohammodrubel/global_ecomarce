@@ -79,13 +79,13 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="relative hidden sm:inline-flex hover:bg-slate-100 text-slate-700"
+              className="relative hidden sm:inline-flex  text-slate-700"
               aria-label="Wishlist"
               asChild
             >
               <Link href="/wishlist">
                 <Heart className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-[#1C398E] text-xs">
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center  text-xs">
                   {totalWishlist || 0}
                 </Badge>
               </Link>
@@ -94,13 +94,13 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="relative hover:bg-slate-100 text-slate-700"
+              className="relative  text-slate-700"
               aria-label="Shopping cart"
               asChild
             >
               <Link href="/cart">
                 <ShoppingCart className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-[#1C398E] text-xs">
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center  text-xs">
                   {totalQuantity || 0}
                 </Badge>
               </Link>
@@ -109,11 +109,11 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="relative hidden sm:inline-flex hover:bg-slate-100 text-slate-700"
+              className="relative hidden sm:inline-flex  text-slate-700"
               aria-label="User account"
               asChild
             >
-              <Link href="/account">
+              <Link href="/">
                 <User className="h-5 w-5" />
                 <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-orange-500 text-xs">
                   0

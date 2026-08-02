@@ -128,8 +128,8 @@ function HeroSection() {
             </CarouselContent>
             
             {/* Custom Navigation Buttons */}
-            <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg border-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full hidden sm:flex" />
-            <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg border-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full hidden sm:flex" />
+            <CarouselPrevious className="left-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 hidden sm:flex" />
+            <CarouselNext className="right-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 hidden sm:flex" />
           </Carousel>
         </div>
       </div>

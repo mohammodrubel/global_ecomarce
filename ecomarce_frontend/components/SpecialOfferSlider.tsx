@@ -50,9 +50,9 @@ export function SpecialOfferSlider() {
 
         {offers.length > 1 && (
   <>
-    <CarouselPrevious className="left-1 bg-white text-black hover:bg-white hover:text-black hidden md:flex" />
-    
-    <CarouselNext className="right-1 bg-white text-black hover:bg-white hover:text-black hidden md:flex" />
+    <CarouselPrevious className="left-2 hidden md:flex" />
+
+    <CarouselNext className="right-2 hidden md:flex" />
   </>
 )}
       </Carousel>

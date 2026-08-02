@@ -191,8 +191,8 @@ function FeaturedProducts() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="hidden sm:flex left-2 z-10 bg-white/90 hover:bg-white shadow-md" />
-              <CarouselNext className="hidden sm:flex right-2 z-10 bg-white/90 hover:bg-white shadow-md" />
+              <CarouselPrevious className="hidden sm:flex left-2" />
+              <CarouselNext className="hidden sm:flex right-2" />
             </Carousel>
           </div>
         </div>

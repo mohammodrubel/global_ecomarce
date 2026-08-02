@@ -106,8 +106,8 @@ function TopCategories() {
           </CarouselContent>
 
           {/* Carousel Controls */}
-          <CarouselPrevious className="hidden sm:flex -left-2 lg:-left-4 bg-white shadow-md hover:bg-gray-50" />
-          <CarouselNext className="hidden sm:flex -right-2 lg:-right-4 bg-white shadow-md hover:bg-gray-50" />
+          <CarouselPrevious className="hidden sm:flex -left-2 lg:-left-4" />
+          <CarouselNext className="hidden sm:flex -right-2 lg:-right-4" />
         </Carousel>
       </div>
     </section>
