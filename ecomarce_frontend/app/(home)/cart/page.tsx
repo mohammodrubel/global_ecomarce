@@ -10,8 +10,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { useSelector, useDispatch } from "react-redux"
-import { decrementQuantity, incrementQuantity } from "@/redux/fetchers/cart/cartSlice"
-import Footer from "@/components/share/Footer"
+import {
+  decrementQuantity,
+  incrementQuantity,
+  removeCart,
+  removeItem,
+} from "@/redux/fetchers/cart/cartSlice"
 
 export default function CartPage() {
   const dispatch = useDispatch()
@@ -37,8 +41,11 @@ export default function CartPage() {
     dispatch(decrementQuantity({id:id}))
   }
 
-  const removeItem = (id: string) => {
-    dispatch({ type: "cart/removeItem", payload: { id } })
+  const handleRemove = (id: string) => {
+    dispatch(removeItem({ id }))
+  }
+  const handleClearCart = () => {
+    dispatch(removeCart())
   }
 
   if (cartProducts.length === 0) {
@@ -57,19 +64,28 @@ export default function CartPage() {
   }
 
   return (
-    <>
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-      <div className="mb-6 sm:mb-8">
-        <Button variant="ghost" asChild className="mb-3 sm:mb-4">
-          <Link href="/shop">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Continue Shopping
-          </Link>
+    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        <div>
+          <Button variant="ghost" asChild className="mb-3 sm:mb-4 -ml-3">
+            <Link href="/shop">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Continue Shopping
+            </Link>
+          </Button>
+          <h1 className="text-2xl sm:text-3xl font-bold">Shopping Cart</h1>
+          <p className="text-gray-600">
+            {cartInfo.totalQuantity} {cartInfo.totalQuantity === 1 ? 'item' : 'items'} in your cart
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={handleClearCart}
+          className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 self-start sm:self-auto"
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
+          Clear Cart
         </Button>
-        <h1 className="text-2xl sm:text-3xl font-bold">Shopping Cart</h1>
-        <p className="text-gray-600">
-          {cartInfo.totalQuantity} {cartInfo.totalQuantity === 1 ? 'item' : 'items'} in your cart
-        </p>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
@@ -101,7 +117,7 @@ export default function CartPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => handleRemove(item.id)}
                         className="text-red-500 hover:text-red-700"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -199,7 +215,5 @@ export default function CartPage() {
         </div>
       </div>
     </div>
-    <Footer/>
-    </>
   )
 }
