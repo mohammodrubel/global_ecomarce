@@ -8,9 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Product } from "@/lib/Types";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ProductType } from "./productType";
 import { addToCart } from "@/redux/fetchers/cart/cartSlice";
+import {
+  addToWishlist,
+  removeFromWishlist,
+} from "@/redux/fetchers/wishlist/wishlistSlice";
+import { RootState } from "@/redux/store";
+import { toast } from "sonner";
 
 
 interface ProductCardProps {
@@ -73,6 +79,28 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleAddToCart = (product:any)=>{
     dispatch(addToCart(product))
   }
+
+  const isWishlisted = useSelector((state: RootState) =>
+    Boolean(
+      state.wishlist?.product?.find(
+        (p: any) => p.id === product?.id && p.wishlist
+      )
+    )
+  );
+
+  const handleWishlistToggle = (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isWishlisted) {
+      dispatch(removeFromWishlist(product.id));
+      toast.info("Removed from wishlist");
+    } else {
+      dispatch(addToWishlist(product));
+      toast.success("Added to wishlist");
+    }
+  };
 
   // Safe product data with fallbacks
   const productName = product?.name || "Unnamed Product";
@@ -159,16 +187,25 @@ export default function ProductCard({ product }: ProductCardProps) {
             <Button
               size="icon"
               variant="secondary"
+              onClick={handleWishlistToggle}
+              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
               className="h-9 w-9 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white hover:scale-110 shadow-lg border-0 transition-all duration-300"
             >
-              <Heart className="h-4 w-4" />
+              <Heart
+                className={`h-4 w-4 ${
+                  isWishlisted ? "fill-red-500 text-red-500" : ""
+                }`}
+              />
             </Button>
             <Button
               size="icon"
               variant="secondary"
+              asChild
               className="h-9 w-9 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white hover:scale-110 shadow-lg border-0 transition-all duration-300"
             >
-              <Eye className="h-4 w-4" />
+              <Link href={`/shop/${productId}`} aria-label="View product">
+                <Eye className="h-4 w-4" />
+              </Link>
             </Button>
           </div>
 

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,6 +16,11 @@ import TrustFeatures from "./_TrustFeatures";
 import ProductDescription from "./_ProductDescription";
 import ProductDetails from "./_ProductDetails";
 import ProductReviews from "./_ProductReviews";
+import {
+  addToWishlist,
+  removeFromWishlist,
+} from "@/redux/fetchers/wishlist/wishlistSlice";
+import { RootState } from "@/redux/store";
 
 interface Brand {
   id: string;
@@ -55,8 +62,23 @@ interface Product {
 
 export default function ProductDetailClient({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
-console.log(product)
+  const dispatch = useDispatch();
+  const isWishlisted = useSelector((state: RootState) =>
+    Boolean(
+      state.wishlist?.product?.find(
+        (p: any) => p.id === product?.id && p.wishlist
+      )
+    )
+  );
+  const handleWishlistToggle = () => {
+    if (isWishlisted) {
+      dispatch(removeFromWishlist(product.id));
+      toast.info("Removed from wishlist");
+    } else {
+      dispatch(addToWishlist(product as any));
+      toast.success("Added to wishlist");
+    }
+  };
   // Transform the API data to match the expected format
   const productData = {
     id: product.id || "",
@@ -142,7 +164,7 @@ console.log(product)
             <ActionButtons
               inStock={productData.inStock}
               isWishlisted={isWishlisted}
-              onWishlistToggle={() => setIsWishlisted(!isWishlisted)}
+              onWishlistToggle={handleWishlistToggle}
             />
 
             <TrustFeatures />
