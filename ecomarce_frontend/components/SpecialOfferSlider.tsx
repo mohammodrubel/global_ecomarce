@@ -27,21 +27,21 @@ export function SpecialOfferSlider() {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       <Carousel
-        className="w-full"
+        className="w-full h-full"
         opts={{
           align: "center",
           loop: true,
         }}
       >
-        <CarouselContent className="-ml-1">
+        <CarouselContent className="-ml-1 h-full">
           {offers.map((offer: any) => (
             <CarouselItem
               key={offer.id}
-              className="pl-1 basis-full"
+              className="pl-1 basis-full h-full"
             >
-              <div className="p-1">
+              <div className="p-1 h-full">
                 <SpecialOffer offer={offer} />
               </div>
             </CarouselItem>

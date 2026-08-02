@@ -57,20 +57,20 @@ function HeroSection() {
   }
 
   return (
-    <section className="w-full">
-      <div className="w-full">
+    <section className="w-full h-full">
+      <div className="w-full h-full">
         {/* Banner Slider */}
-        <div className="w-full">
-          <Carousel className="w-full relative" opts={{ loop: true }}>
-            <CarouselContent className="-ml-4">
+        <div className="w-full h-full">
+          <Carousel className="w-full h-full relative" opts={{ loop: true }}>
+            <CarouselContent className="-ml-4 h-full">
               {data.data.map((slider: any) => (
                 <CarouselItem
                   key={slider.id}
-                  className="pl-4 md:basis-full lg:basis-full"
+                  className="pl-4 md:basis-full lg:basis-full h-full"
                 >
-                  <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <div className="p-4 sm:p-6 md:p-8 lg:p-10">
-                      <div className="grid md:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center">
+                  <div className="h-full bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <div className="p-4 sm:p-6 md:p-8 lg:p-10 h-full">
+                      <div className="grid md:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center h-full">
                         {/* Left Side: Text */}
                         <div className="space-y-4 sm:space-y-5">
                           <Badge className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0 px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold">
@@ -90,7 +90,7 @@ function HeroSection() {
                             }}
                           />
 
-                          <Button className="bg-gray-900 hover:bg-gray-800 text-white px-5 sm:px-8 py-4 sm:py-6 text-sm sm:text-base rounded-full transition-all duration-300 hover:scale-105">
+                          <Button className="bg-gray-900 hover:bg-[#1C398E] bg-[#1C398E] text-white px-5 sm:px-8 py-4 sm:py-6 text-sm sm:text-base rounded-full transition-all duration-300 hover:scale-105">
                             {slider.buttonText ?? "Shop Now"}
                             <svg 
                               className="ml-2 w-5 h-5" 

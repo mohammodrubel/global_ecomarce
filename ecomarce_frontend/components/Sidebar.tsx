@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronRight, LayoutGrid, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,16 +22,27 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Category } from "@/lib/Types";
 import Link from "next/link";
 
-
+function pickRandom<T>(arr: T[], n: number): T[] {
+  if (!arr?.length) return [];
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(0, n);
+}
 
 function DesktopSidebar() {
   const { isLoading, isError, data } = useGetAllCategoryQuery(undefined);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
-  const mainData = data?.data.slice(0, 8);
+  const mainData = useMemo(
+    () => pickRandom<Category>(data?.data ?? [], 8),
+    [data]
+  );
 
   if (isLoading) {
     return (
-      <aside className="relative w-64 bg-white shadow-lg min-h-auto hidden lg:block rounded-lg">
+      <aside className="relative w-64 bg-white shadow-lg h-full hidden lg:block rounded-lg">
         <div className="p-4">
           {Array.from({ length: 8 }).map((_, index) => (
             <div key={index} className="relative mb-2">
@@ -51,7 +62,7 @@ function DesktopSidebar() {
 
   if (isError) {
     return (
-      <aside className="relative w-64 bg-white shadow-lg min-h-auto hidden lg:block rounded-lg">
+      <aside className="relative w-64 bg-white shadow-lg h-full hidden lg:block rounded-lg">
         <div className="p-4">
           <div className="text-center p-4 text-red-500">
             Failed to load categories
@@ -62,7 +73,7 @@ function DesktopSidebar() {
   }
 
   return (
-    <aside className="relative w-64 bg-white shadow-lg min-h-auto hidden lg:block rounded-2xl">
+    <aside className="relative w-64 bg-white shadow-lg h-full hidden lg:block rounded-2xl">
       <div className="p-3 space-y-1.5">
         {/* <h2 className="text-lg font-semibold mb-4 px-2">Categories</h2> */}
         {mainData?.map((category: Category) => (
@@ -140,7 +151,10 @@ function DesktopSidebar() {
 function MobileSidebar() {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const { isLoading, isError, data } = useGetAllCategoryQuery(undefined);
-  const mainData = data?.data.slice(0,8);
+  const mainData = useMemo(
+    () => pickRandom<Category>(data?.data ?? [], 8),
+    [data]
+  );
 
   if (isLoading) {
     return (
