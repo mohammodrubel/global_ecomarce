@@ -2,37 +2,32 @@
 
 import type * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { toast } from "sonner";
 import {
   LayoutDashboard,
   Package,
   ShoppingCart,
   Users,
-  BarChart3,
-  Settings,
-  Globe,
-  TrendingUp,
   ChevronDown,
-  Tags,
-  Award,
-  Zap,
-  FolderTree,
   Building,
-  Percent,
-  Star,
-  FileText,
-  Truck,
-  CreditCard,
-  Shield,
-  Image,
+  Ticket,
+  LogOut,
+  Store,
+  Image as ImageIcon,
+  Sparkles,
+  FolderTree,
   Megaphone,
 } from "lucide-react";
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -47,62 +42,66 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { logout } from "@/redux/fetchers/auth/authSlice";
 
-const menuItems = [
-  {
-    title: "Dashboard",
-    url: "/admin",
-    icon: LayoutDashboard,
-    color: "text-blue-500",
-    bgColor: "bg-blue-50",
-  },
+type SubItem = { title: string; url: string };
+type MenuItem = {
+  title: string;
+  url?: string;
+  icon: React.ElementType;
+  items?: SubItem[];
+};
+
+const overview: MenuItem[] = [
+  { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
+];
+
+const commerce: MenuItem[] = [
   {
     title: "Orders",
     icon: ShoppingCart,
-    color: "text-green-500",
-    bgColor: "bg-green-50",
-    items: [
-      { title: "All Orders", url: "/admin/orders" },
-      { title: "Pending Orders", url: "/admin/orders/pending" },
-      { title: "Shipped Orders", url: "/admin/orders/shipped" },
-    ],
+    items: [{ title: "All Orders", url: "/dashboard/all-orders" }],
   },
   {
     title: "Products",
     icon: Package,
-    color: "text-purple-500",
-    bgColor: "bg-purple-50",
     items: [
       { title: "All Products", url: "/dashboard/all-product" },
-      { title: "Add Products", url: "/dashboard/add-product" },
-      { title: "Add Products Color", url: "/dashboard/add-product-color" },
+      { title: "Add Product", url: "/dashboard/add-product" },
+      { title: "Product Colors", url: "/dashboard/add-product-color" },
     ],
   },
   {
-    title: "Category",
+    title: "Categories",
     icon: FolderTree,
-    color: "text-orange-500",
-    bgColor: "bg-orange-50",
     items: [
       { title: "All Categories", url: "/dashboard/all-categories" },
       { title: "Add Category", url: "/dashboard/add-categories" },
     ],
   },
   {
-    title: "Brand",
+    title: "Brands",
     icon: Building,
-    color: "text-red-500",
-    bgColor: "bg-red-50",
     items: [
       { title: "All Brands", url: "/dashboard/brand" },
       { title: "Add Brand", url: "/dashboard/add-brand" },
     ],
   },
+  { title: "Customers", url: "/dashboard/customars", icon: Users },
+];
+
+const marketing: MenuItem[] = [
   {
-    title: "Banner",
-    icon: Image,
-    color: "text-indigo-500",
-    bgColor: "bg-indigo-50",
+    title: "Coupons",
+    icon: Ticket,
+    items: [
+      { title: "All Coupons", url: "/dashboard/coupons" },
+      { title: "Add Coupon", url: "/dashboard/add-coupon" },
+    ],
+  },
+  {
+    title: "Banners",
+    icon: ImageIcon,
     items: [
       { title: "All Banners", url: "/dashboard/all-banners" },
       { title: "Add Banner", url: "/dashboard/add-banner" },
@@ -110,164 +109,181 @@ const menuItems = [
   },
   {
     title: "Special Offers",
-    icon: Zap,
-    color: "text-yellow-500",
-    bgColor: "bg-yellow-50",
+    icon: Sparkles,
     items: [
-      { title: "All Special Offers", url: "/dashboard/specialOffer" },
-      { title: "Add Special Offer", url: "/dashboard/add-special" },
+      { title: "All Offers", url: "/dashboard/specialOffer" },
+      { title: "Add Offer", url: "/dashboard/add-special" },
     ],
   },
   {
-    title: "Advertisement",
+    title: "Advertisements",
     icon: Megaphone,
-    color: "text-rose-500",
-    bgColor: "bg-rose-50",
     items: [
-      { title: "All Advertisements", url: "/dashboard/all-advertisements" },
-      { title: "Add Advertisement", url: "/dashboard/add-advertisement" },
-    ],
-  },
-  {
-    title: "Customers",
-    url: "/dashboard/customars",
-    icon: Users,
-    color: "text-cyan-500",
-    bgColor: "bg-cyan-50",
-  },
-  {
-    title: "Marketing",
-    icon: TrendingUp,
-    color: "text-pink-500",
-    bgColor: "bg-pink-50",
-    items: [
-      { title: "Coupons", url: "/admin/coupons", icon: Percent },
-      { title: "Reviews", url: "/admin/reviews", icon: Star },
-      { title: "Content Management", url: "/admin/content", icon: FileText },
-    ],
-  },
-  {
-    title: "Reports",
-    icon: BarChart3,
-    color: "text-indigo-500",
-    bgColor: "bg-indigo-50",
-    items: [
-      { title: "Sales Report", url: "/admin/reports/sales" },
-      { title: "Traffic Report", url: "/admin/reports/traffic" },
-      { title: "Product Report", url: "/admin/reports/products" },
-    ],
-  },
-  {
-    title: "Settings",
-    icon: Settings,
-    color: "text-gray-500",
-    bgColor: "bg-gray-50",
-    items: [
-      { title: "General", url: "/admin/settings" },
-      { title: "Shipping", url: "/admin/settings/shipping", icon: Truck },
-      { title: "Tax Settings", url: "/admin/settings/tax" },
-      {
-        title: "Payment Gateway",
-        url: "/admin/settings/payment",
-        icon: CreditCard,
-      },
-      { title: "User Roles", url: "/admin/settings/roles", icon: Shield },
+      { title: "All Ads", url: "/dashboard/all-advertisements" },
+      { title: "Add Ad", url: "/dashboard/add-advertisement" },
     ],
   },
 ];
 
+function isMenuActive(pathname: string, item: MenuItem) {
+  if (item.url && pathname === item.url) return true;
+  if (item.items?.some((s) => pathname === s.url)) return true;
+  return false;
+}
+
+function MenuBlock({
+  label,
+  items,
+  pathname,
+}: {
+  label: string;
+  items: MenuItem[];
+  pathname: string;
+}) {
+  return (
+    <SidebarGroup>
+      <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 px-3">
+        {label}
+      </SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item) => {
+            const Icon = item.icon;
+            const active = isMenuActive(pathname, item);
+            if (item.items?.length) {
+              return (
+                <Collapsible
+                  key={item.title}
+                  defaultOpen={active}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton
+                        tooltip={item.title}
+                        className="text-slate-700 hover:bg-slate-100 hover:text-slate-900 data-[state=open]:bg-slate-50 h-9"
+                      >
+                        <Icon className="h-4 w-4" />
+                        <span className="text-sm font-medium">{item.title}</span>
+                        <ChevronDown className="ml-auto h-3.5 w-3.5 text-slate-400 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub className="border-l border-slate-200 ml-3.5 mt-1 pl-3">
+                        {item.items.map((sub) => {
+                          const subActive = pathname === sub.url;
+                          return (
+                            <SidebarMenuSubItem key={sub.url}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={subActive}
+                                className={
+                                  subActive
+                                    ? "bg-blue-50 text-blue-700 font-medium hover:bg-blue-50 hover:text-blue-700"
+                                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                }
+                              >
+                                <Link href={sub.url}>{sub.title}</Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          );
+                        })}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </SidebarMenuItem>
+                </Collapsible>
+              );
+            }
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={active}
+                  tooltip={item.title}
+                  className={
+                    active
+                      ? "bg-blue-50 text-blue-700 hover:bg-blue-50 hover:text-blue-700 font-medium h-9"
+                      : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 h-9"
+                  }
+                >
+                  <Link href={item.url || "#"}>
+                    <Icon className="h-4 w-4" />
+                    <span className="text-sm font-medium">{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+}
+
 export function AdminSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const pathname = usePathname();
+  const pathname = usePathname() || "";
+  const router = useRouter();
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    toast.success("Logged out");
+    router.push("/");
+  };
 
   return (
-    <Sidebar
-      {...props}
-      className="bg-gradient-to-b from-slate-50 to-blue-50 border-r border-blue-100"
-    >
-      <SidebarHeader>
-        <div className="flex items-center gap-3 px-4 py-4  rounded-lg mx-3 my-3 shadow-lg">
-          <div className="grid flex-1 text-left ">
-            <span className=" font-bold text-lg">ShopHub Admin</span>
-            <span className=" text-sm ">Admin Panel</span>
+    <Sidebar collapsible="icon" className="border-r border-slate-200" {...props}>
+      <SidebarHeader className="border-b border-slate-200 px-4 py-3.5">
+        <Link href="/dashboard" className="flex items-center gap-2.5">
+          <div className="h-9 w-9 rounded-lg bg-[#2563EB] text-white flex items-center justify-center font-bold shrink-0">
+            R
           </div>
-        </div>
+          <div className="group-data-[collapsible=icon]:hidden">
+            <p className="font-semibold text-slate-900 leading-tight text-[15px]">
+              Rocks<span className="text-[#2563EB]">Mart</span>
+            </p>
+            <p className="text-[10px] text-slate-500 uppercase tracking-wider">
+              Admin Panel
+            </p>
+          </div>
+        </Link>
       </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => {
-                if (item.items) {
-                  return (
-                    <Collapsible
-                      key={item.title}
-                      defaultOpen
-                      className="group/collapsible"
-                    >
-                      <SidebarMenuItem>
-                        <CollapsibleTrigger asChild>
-                          <SidebarMenuButton className="hover:bg-white/50 transition-all duration-200 rounded-lg mx-2 group-hover/collapsible:bg-white/30">
-                            <div className={`p-2 rounded-lg ${item.bgColor}`}>
-                              <item.icon className={`size-4 ${item.color}`} />
-                            </div>
-                            <span className="font-medium text-slate-700">
-                              {item.title}
-                            </span>
-                            <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180 text-slate-400" />
-                          </SidebarMenuButton>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <SidebarMenuSub>
-                            {item.items.map((subItem) => (
-                              <SidebarMenuSubItem key={subItem.title}>
-                                <SidebarMenuSubButton
-                                  asChild
-                                  isActive={pathname === subItem.url}
-                                  className="hover:bg-white/50 transition-colors duration-200 rounded-lg mx-2"
-                                >
-                                  <Link href={subItem.url} className="py-2">
-                                    {subItem.icon && (
-                                      <subItem.icon className="size-3.5 text-slate-500 mr-2" />
-                                    )}
-                                    <span className="text-sm text-slate-600">
-                                      {subItem.title}
-                                    </span>
-                                  </Link>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            ))}
-                          </SidebarMenuSub>
-                        </CollapsibleContent>
-                      </SidebarMenuItem>
-                    </Collapsible>
-                  );
-                }
 
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname === item.url}
-                      className="hover:bg-white/50 transition-all duration-200 rounded-lg mx-2"
-                    >
-                      <Link href={item.url}>
-                        <div className={`p-2 rounded-lg ${item.bgColor}`}>
-                          <item.icon className={`size-4 ${item.color}`} />
-                        </div>
-                        <span className="font-medium text-slate-700">
-                          {item.title}
-                        </span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent className="py-2">
+        <MenuBlock label="Overview" items={overview} pathname={pathname} />
+        <MenuBlock label="Commerce" items={commerce} pathname={pathname} />
+        <MenuBlock label="Marketing" items={marketing} pathname={pathname} />
       </SidebarContent>
+
+      <SidebarFooter className="border-t border-slate-200 p-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              tooltip="Back to store"
+              className="text-slate-700 hover:bg-slate-100 hover:text-slate-900 h-9"
+            >
+              <Link href="/">
+                <Store className="h-4 w-4" />
+                <span className="text-sm font-medium">Back to store</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={handleLogout}
+              tooltip="Logout"
+              className="text-red-600 hover:bg-red-50 hover:text-red-700 h-9"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="text-sm font-medium">Logout</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
   );

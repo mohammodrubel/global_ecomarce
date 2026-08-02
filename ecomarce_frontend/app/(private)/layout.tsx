@@ -1,4 +1,9 @@
+"use client";
+
 import type React from "react";
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
@@ -14,55 +19,91 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
+import { UserSidebar } from "@/components/UserSidebar";
+import { RootState } from "@/redux/store";
 
-export default function AdminLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const token = useSelector((state: RootState) => state.auth?.token);
+  const user = useSelector((state: RootState) => state.auth?.user);
+  const role = user?.role || "USER";
+  const isAdmin = role === "ADMIN";
+
+  // Non-admin trying to hit an admin-only subroute → send to dashboard root
+  const adminOnlyRoutes = [
+    "/dashboard/add-",
+    "/dashboard/all-",
+    "/dashboard/brand",
+    "/dashboard/customars",
+    "/dashboard/specialOffer",
+    "/dashboard/edit-",
+    "/dashboard/coupons",
+  ];
+  const isAdminRoute = adminOnlyRoutes.some((r) => pathname?.includes(r));
+
+  useEffect(() => {
+    if (!token) router.replace("/login");
+  }, [token, router]);
+
+  useEffect(() => {
+    if (token && !isAdmin && isAdminRoute) router.replace("/dashboard");
+  }, [token, isAdmin, isAdminRoute, router]);
+
+  if (!token || !user) return null;
+
   return (
     <SidebarProvider>
-      <AdminSidebar />
+      {isAdmin ? <AdminSidebar /> : <UserSidebar />}
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-gradient-to-r from-blue-50 via-white to-purple-50 shadow-sm">
-          <SidebarTrigger className="-ml-1 p-2 rounded-lg hover:bg-[#1C398E]/10 transition-colors duration-200 text-[#1C398E] hover:text-[#152B6E]" />
-          <Separator
-            orientation="vertical"
-            className="mr-2 h-6 bg-gradient-to-b from-blue-200 to-purple-200"
-          />
+        <header className="flex h-14 shrink-0 items-center gap-3 border-b border-slate-200 px-4 sm:px-6 bg-white sticky top-0 z-30">
+          <SidebarTrigger className="-ml-1 h-8 w-8 rounded-md hover:bg-slate-100 text-slate-700" />
+          <Separator orientation="vertical" className="h-5 bg-slate-200" />
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink
-                  href="/admin"
-                  className="text-[#1C398E] hover:text-[#152B6E] font-medium transition-colors duration-200"
+                  href="/dashboard"
+                  className="text-slate-500 hover:text-slate-900 font-medium text-sm"
                 >
-                  Admin Dashboard
+                  {isAdmin ? "Admin" : "My"} Dashboard
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block text-gray-300" />
+              <BreadcrumbSeparator className="hidden md:block text-slate-300" />
               <BreadcrumbItem>
-                <BreadcrumbPage className="text-purple-600 font-semibold bg-gradient-to-r from-purple-100 to-pink-100 px-3 py-1 rounded-full text-sm">
+                <BreadcrumbPage className="text-slate-900 font-medium text-sm">
                   Overview
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
 
-          {/* Additional colorful elements */}
-          <div className="ml-auto flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-gradient-to-r from-green-50 to-emerald-50 px-3 py-1 rounded-full border border-green-200">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-green-700">Online</span>
+          <div className="ml-auto flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 ring-1 ring-emerald-200">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span className="text-[11px] font-medium text-emerald-700">
+                {isAdmin ? "Admin" : "Customer"}
+              </span>
             </div>
-            <div className="w-8 h-8 bg-gradient-to-r from-orange-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
-              A
+            <div className="hidden sm:flex flex-col items-end mr-1">
+              <span className="text-xs font-medium text-slate-900 leading-tight max-w-[140px] truncate">
+                {user.name || user.email}
+              </span>
+              <span className="text-[10px] text-slate-500 leading-tight">
+                {user.email}
+              </span>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-semibold text-xs">
+              {(user.name || user.email || "U").charAt(0).toUpperCase()}
             </div>
           </div>
         </header>
 
-        <div className="flex flex-1 flex-col gap-4 p-4 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 min-h-screen">
-          
+        <div className="flex flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8 bg-[#F8FAFC] min-h-screen">
           {children}
         </div>
       </SidebarInset>

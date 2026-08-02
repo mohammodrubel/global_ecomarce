@@ -77,10 +77,16 @@ export default function CreateSliderPage() {
   };
 
   return (
-    <div className="w-[60%] my-10 mx-auto">
-      <Card>
+    <div className="max-w-3xl mx-auto w-full space-y-6">
+      <div className="pb-4 border-b border-slate-200">
+        <h1 className="text-2xl sm:text-[28px] font-semibold tracking-tight text-slate-900">
+          Add Banner
+        </h1>
+        <p className="text-sm text-slate-500 mt-1">Create a new homepage banner</p>
+      </div>
+      <Card className="border-slate-200 shadow-none rounded-xl">
         <CardHeader>
-          <CardTitle>Create Slider</CardTitle>
+          <CardTitle className="text-[15px] font-semibold">Banner Details</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>

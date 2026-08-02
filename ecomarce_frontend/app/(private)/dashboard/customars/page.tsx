@@ -130,76 +130,48 @@ export default function CustomersManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between pb-4 sm:pb-5 border-b border-slate-200">
         <div>
-          <h1 className="text-3xl font-bold">Customers Management</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-[28px] font-semibold tracking-tight text-slate-900">
+            Customers
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
             Manage your customer base and relationships
           </p>
         </div>
-        <Button>
+        <Button size="sm" className="bg-[#2563EB] hover:bg-[#1D4ED8]">
           <UserPlus className="h-4 w-4 mr-2" />
           Add Customer
         </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Customers
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">1,234</div>
-            <p className="text-xs text-muted-foreground">
-              +8.2% from last month
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Customers
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">1,089</div>
-            <p className="text-xs text-muted-foreground">88% of total</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">VIP Customers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">67</div>
-            <p className="text-xs text-muted-foreground">
-              High value customers
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              New This Month
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">78</div>
-            <p className="text-xs text-muted-foreground">+12% growth</p>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { title: "Total Customers", value: "1,234", hint: "+8.2% from last month" },
+          { title: "Active Customers", value: "1,089", hint: "88% of total" },
+          { title: "VIP Customers", value: "67", hint: "High value customers" },
+          { title: "New This Month", value: "78", hint: "+12% growth" },
+        ].map((s) => (
+          <Card key={s.title} className="border-slate-200 shadow-none rounded-xl">
+            <CardContent className="p-5">
+              <p className="text-sm text-slate-500 font-medium">{s.title}</p>
+              <p className="text-[26px] leading-tight font-semibold text-slate-900 mt-1 tracking-tight">
+                {s.value}
+              </p>
+              <p className="text-xs text-slate-400 mt-1.5">{s.hint}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Filters */}
-      <Card>
+      <Card className="border-slate-200 shadow-none rounded-xl">
         <CardHeader>
-          <CardTitle>Customer Filters</CardTitle>
+          <CardTitle className="text-[15px] font-semibold">Filters</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -232,11 +204,13 @@ export default function CustomersManagement() {
       </Card>
 
       {/* Customers Table */}
-      <Card>
+      <Card className="border-slate-200 shadow-none rounded-xl">
         <CardHeader>
-          <CardTitle>Customers ({filteredCustomers.length})</CardTitle>
+          <CardTitle className="text-[15px] font-semibold">
+            Customers ({filteredCustomers.length})
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>

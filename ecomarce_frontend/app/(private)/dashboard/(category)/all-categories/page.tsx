@@ -54,32 +54,33 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-bold">Categories</h1>
-            <Link href="/dashboard/add-categories">
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Category
-              </Button>
-            </Link>
-          </div>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between pb-4 sm:pb-5 border-b border-slate-200">
+        <div>
+          <h1 className="text-2xl sm:text-[28px] font-semibold tracking-tight text-slate-900">
+            Categories
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Organize your products into categories
+          </p>
+        </div>
+        <Link href="/dashboard/add-categories">
+          <Button size="sm" className="bg-[#2563EB] hover:bg-[#1D4ED8]">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Category
+          </Button>
+        </Link>
+      </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>All Categories</CardTitle>
-            </CardHeader>
-            <CardContent>
+      <div className="rounded-xl border border-slate-200 bg-white overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Icon</TableHead>
-                    <TableHead>Subcategories</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                  <TableRow className="bg-slate-50/60">
+                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Name</TableHead>
+                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Icon</TableHead>
+                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Subcategories</TableHead>
+                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Created</TableHead>
+                    <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500 text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -145,10 +146,7 @@ export default function CategoriesPage() {
                     </TableRow>
                   ))}
                 </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </div>
+          </Table>
       </div>
     </div>
   );

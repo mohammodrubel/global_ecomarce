@@ -115,16 +115,22 @@ export default function SlidersTableWithEditModal() {
     );
 
   return (
-    <div className="w-[90%] mx-auto my-10">
+    <div className="space-y-6">
+      <div className="pb-4 border-b border-slate-200">
+        <h1 className="text-2xl sm:text-[28px] font-semibold tracking-tight text-slate-900">
+          Banners
+        </h1>
+        <p className="text-sm text-slate-500 mt-1">Homepage banners</p>
+      </div>
+      <div className="rounded-xl border border-slate-200 bg-white overflow-x-auto">
       <Table>
-        <TableCaption>All sliders</TableCaption>
         <TableHeader>
-          <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Button Text</TableHead>
-            <TableHead>Product</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+          <TableRow className="bg-slate-50/60">
+            <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Title</TableHead>
+            <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Description</TableHead>
+            <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Button Text</TableHead>
+            <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Product</TableHead>
+            <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500 text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -179,6 +185,7 @@ export default function SlidersTableWithEditModal() {
               ))}
         </TableBody>
       </Table>
+      </div>
 
       {/* Edit Modal */}
       <Dialog open={isEditOpen} onOpenChange={() => setIsEditOpen(false)}>

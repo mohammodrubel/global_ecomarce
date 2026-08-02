@@ -5,6 +5,17 @@ import { UserRole } from '@prisma/client';
 
 const router = Router();
 
+router.get(
+  '/me',
+  auth(UserRole.ADMIN, UserRole.USER),
+  UserController.GetMe,
+);
+router.patch(
+  '/me',
+  auth(UserRole.ADMIN, UserRole.USER),
+  UserController.UpdateMe,
+);
+
 router.get('/', auth(UserRole.ADMIN), UserController.GetAllUsers);
 router
   .route('/:id')

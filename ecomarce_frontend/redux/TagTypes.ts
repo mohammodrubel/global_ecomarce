@@ -7,7 +7,9 @@ export const tagTypes = {
   slider: "slider",
   banner: "banner",
   advertisement:"advertisement",
-  productColor:"productColor"
+  productColor:"productColor",
+  coupon: "coupon",
+  order: "order",
 };
 
 export const tagTypesList = [
@@ -19,5 +21,7 @@ export const tagTypesList = [
   tagTypes.slider,
   tagTypes.banner,
   tagTypes.advertisement,
-  tagTypes.productColor
+  tagTypes.productColor,
+  tagTypes.coupon,
+  tagTypes.order,
 ];

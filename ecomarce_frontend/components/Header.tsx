@@ -3,28 +3,58 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Heart, Search, ShoppingCart, User } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Heart,
+  KeyRound,
+  LayoutDashboard,
+  LogIn,
+  LogOut,
+  Search,
+  ShoppingCart,
+  User,
+  UserCircle2,
+  UserPlus,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, FormEvent } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { logout } from "@/redux/fetchers/auth/authSlice";
+import { toast } from "sonner";
 
 export function Header() {
   const [search, setSearch] = useState<string>("");
 
+  const dispatch = useDispatch();
   const totalQuantity = useSelector(
     (state: RootState) => state.cart?.totalQuantity
   );
   const totalWishlist = useSelector(
     (state: RootState) => state.wishlist?.totalwishlistProduct
   );
+  const user = useSelector((state: RootState) => state.auth?.user);
+  const isAuthed = Boolean(user);
 
   const router = useRouter();
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     router.push(`/shop?searchTerm=${search}`);
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    toast.success("Logged out");
+    router.push("/");
   };
 
   return (
@@ -106,20 +136,82 @@ export function Header() {
               </Link>
             </Button>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative hidden sm:inline-flex  text-slate-700"
-              aria-label="User account"
-              asChild
-            >
-              <Link href="/">
-                <User className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-orange-500 text-xs">
-                  0
-                </Badge>
-              </Link>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative text-slate-700"
+                  aria-label="Account menu"
+                >
+                  <User className="h-5 w-5" />
+                  {isAuthed && (
+                    <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-white" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {isAuthed ? (
+                  <>
+                    <DropdownMenuLabel className="flex flex-col gap-0.5">
+                      <span className="text-sm font-semibold truncate">
+                        {user?.name || "Account"}
+                      </span>
+                      {user?.email && (
+                        <span className="text-xs text-slate-500 font-normal truncate">
+                          {user.email}
+                        </span>
+                      )}
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard">
+                        <LayoutDashboard className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/account">
+                        <UserCircle2 className="h-4 w-4 mr-2" />
+                        My Account
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="text-red-600 focus:text-red-700 focus:bg-red-50"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuLabel>Welcome</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/login">
+                        <LogIn className="h-4 w-4 mr-2" />
+                        Login
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/register">
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Register
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/forgot-password">
+                        <KeyRound className="h-4 w-4 mr-2" />
+                        Forgot Password
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 

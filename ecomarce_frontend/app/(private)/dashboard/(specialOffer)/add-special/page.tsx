@@ -59,12 +59,16 @@ export default function AddSpecialOffer() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          <Card>
+    <div className="max-w-3xl mx-auto w-full space-y-6">
+      <div className="pb-4 border-b border-slate-200">
+        <h1 className="text-2xl sm:text-[28px] font-semibold tracking-tight text-slate-900">
+          Add Special Offer
+        </h1>
+        <p className="text-sm text-slate-500 mt-1">Create a promotional offer</p>
+      </div>
+          <Card className="border-slate-200 shadow-none rounded-xl">
             <CardHeader>
-              <CardTitle>Create Special Offer</CardTitle>
+              <CardTitle className="text-[15px] font-semibold">Offer Details</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -151,8 +155,6 @@ export default function AddSpecialOffer() {
               </form>
             </CardContent>
           </Card>
-        </div>
-      </div>
     </div>
   );
 }

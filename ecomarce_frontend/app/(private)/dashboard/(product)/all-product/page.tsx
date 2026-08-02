@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,11 +30,14 @@ import {
   Images,
   Replace,
   ImageMinus,
+  Search,
+  TrendingUp,
 } from "lucide-react";
 import {
   useDeleteProductMutation,
   useGetAllProductsQuery,
 } from "@/redux/fetchers/products/productsApi";
+import { useGetAllOrdersQuery } from "@/redux/fetchers/order/orderApi";
 import { Product } from "@/lib/Types";
 import Link from "next/link";
 import {
@@ -57,6 +61,7 @@ import ChangeProductImageDialog, {
 
 export default function ProductTable() {
   const { isLoading, isError, data } = useGetAllProductsQuery(undefined);
+  const { data: ordersRes } = useGetAllOrdersQuery(undefined);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isChangeImageDialogOpen, setIsChangeImageDialogOpen] = useState(false);
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
@@ -64,8 +69,47 @@ export default function ProductTable() {
     useState<Product | null>(null);
   const [imageDialogMode, setImageDialogMode] =
     useState<ImageDialogMode>("edit");
+  const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   const [deleteProduct] = useDeleteProductMutation();
+
+  // Aggregate sales counts per productId from all orders (exclude cancelled)
+  const salesMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    const orders = ordersRes?.data || [];
+    for (const o of orders) {
+      if (o.status === "CANCELLED") continue;
+      for (const it of o.items || []) {
+        map[it.productId] = (map[it.productId] || 0) + it.quantity;
+      }
+    }
+    return map;
+  }, [ordersRes]);
+
+  const filteredProducts = useMemo(() => {
+    const all: Product[] = data?.data || [];
+    return all.filter((p) => {
+      if (search) {
+        const q = search.toLowerCase();
+        const hit =
+          p.name?.toLowerCase().includes(q) ||
+          p.sku?.toLowerCase().includes(q) ||
+          p.subcategory?.toLowerCase().includes(q) ||
+          p.category?.name?.toLowerCase().includes(q) ||
+          p.brand?.name?.toLowerCase().includes(q);
+        if (!hit) return false;
+      }
+      if (dateFrom && new Date(p.createdAt) < new Date(dateFrom)) return false;
+      if (dateTo) {
+        const end = new Date(dateTo);
+        end.setHours(23, 59, 59, 999);
+        if (new Date(p.createdAt) > end) return false;
+      }
+      return true;
+    });
+  }, [data, search, dateFrom, dateTo]);
 
   const handleView = (product: Product) => {
     setViewingProduct(product);
@@ -97,34 +141,73 @@ export default function ProductTable() {
   if (isError) return <div>Error loading products</div>;
 
   return (
-    <div className="container mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Products</h1>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between pb-4 sm:pb-5 border-b border-slate-200">
+        <div>
+          <h1 className="text-2xl sm:text-[28px] font-semibold tracking-tight text-slate-900">
+            Products
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">Manage your product catalog</p>
+        </div>
         <Link href="/dashboard/add-product">
-          <Button>
+          <Button size="sm" className="bg-[#2563EB] hover:bg-[#1D4ED8]">
             <Plus className="h-4 w-4 mr-2" />
             Add Product
           </Button>
         </Link>
       </div>
 
-      <div className="rounded-xl border bg-card text-card-foreground shadow p-4">
+      {/* Filters */}
+      <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto]">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by name, SKU, category, brand..."
+            className="pl-9 h-10 border-slate-200"
+          />
+        </div>
+        <Input
+          type="date"
+          value={dateFrom}
+          onChange={(e) => setDateFrom(e.target.value)}
+          className="h-10 border-slate-200 sm:w-[160px]"
+          aria-label="Created from"
+        />
+        <Input
+          type="date"
+          value={dateTo}
+          onChange={(e) => setDateTo(e.target.value)}
+          className="h-10 border-slate-200 sm:w-[160px]"
+          aria-label="Created to"
+        />
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-white overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Image</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Subcategory</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Stock</TableHead>
-              <TableHead>Badge</TableHead>
-              <TableHead>Rating</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+            <TableRow className="bg-slate-50/60">
+              <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Image</TableHead>
+              <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Name</TableHead>
+              <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Category</TableHead>
+              <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Price</TableHead>
+              <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Stock</TableHead>
+              <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Sales</TableHead>
+              <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Created</TableHead>
+              <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Badge</TableHead>
+              <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data?.data?.map((product: Product) => (
+            {filteredProducts.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={9} className="text-center py-10 text-sm text-slate-500">
+                  No products match the current filters.
+                </TableCell>
+              </TableRow>
+            )}
+            {filteredProducts.map((product: Product) => (
               <TableRow key={product.id}>
                 <TableCell>
                   <div className="relative group">
@@ -156,35 +239,53 @@ export default function ProductTable() {
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>
-                <TableCell>{product.subcategory}</TableCell>
-                <TableCell>{product?.category?.name}</TableCell>
                 <TableCell>
-                  <span className="text-green-600 font-bold">
-                    ${product.price}
-                  </span>
-                  <span className="line-through text-gray-400 text-sm ml-2">
-                    ${product.originalPrice}
-                  </span>
+                  <p className="text-sm text-slate-900">
+                    {product?.category?.name}
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    {product.subcategory}
+                  </p>
                 </TableCell>
                 <TableCell>
-                  {product.inStock ? (
+                  <p className="text-sm font-semibold text-slate-900">
+                    ৳{product.price}
+                  </p>
+                  {product.originalPrice > product.price && (
+                    <p className="text-[11px] text-slate-400 line-through">
+                      ৳{product.originalPrice}
+                    </p>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {product.inStock && product.stock > 0 ? (
                     <Badge
                       variant="outline"
-                      className="bg-green-100 text-green-600"
+                      className="bg-emerald-50 text-emerald-700 border-emerald-200 font-medium"
                     >
-                      In Stock ({product.stock})
+                      {product.stock}
                     </Badge>
                   ) : (
-                    <Badge variant="destructive">Out of Stock</Badge>
+                    <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                      Out
+                    </Badge>
                   )}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1 text-sm font-medium text-slate-900">
+                    <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
+                    {salesMap[product.id] || 0}
+                  </div>
+                </TableCell>
+                <TableCell className="text-xs text-slate-600">
+                  {new Date(product.createdAt).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
                   {product.badge && (
-                    <Badge variant="secondary">{product.badge}</Badge>
+                    <Badge className="bg-slate-100 text-slate-700 border-0 font-medium">
+                      {product.badge}
+                    </Badge>
                   )}
-                </TableCell>
-                <TableCell>
-                  ⭐ {product.rating} ({product.reviewsCount})
                 </TableCell>
                 <TableCell className="text-right">
                   {/* modal={false} prevents Radix from locking

@@ -137,13 +137,16 @@ export default function AddCategory() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          <div className="flex items-center gap-4 mb-6">
-            <h1 className="text-3xl font-bold">Add New Category</h1>
+          <div className="pb-4 mb-6 border-b border-slate-200">
+            <h1 className="text-2xl sm:text-[28px] font-semibold tracking-tight text-slate-900">
+              Add New Category
+            </h1>
+            <p className="text-sm text-slate-500 mt-1">Create a new product category</p>
           </div>
 
-          <Card>
+          <Card className="border-slate-200 shadow-none rounded-xl">
             <CardHeader>
-              <CardTitle>Create Category</CardTitle>
+              <CardTitle className="text-[15px] font-semibold">Category Details</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">

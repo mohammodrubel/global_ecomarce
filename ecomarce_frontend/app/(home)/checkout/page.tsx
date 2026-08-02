@@ -32,6 +32,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { removeCart } from "@/redux/fetchers/cart/cartSlice"
+import { useApplyCouponMutation } from "@/redux/fetchers/coupon/couponApi"
+import { useCreateOrderMutation } from "@/redux/fetchers/order/orderApi"
+import { Ticket, X } from "lucide-react"
+import { RootState } from "@/redux/store"
 
 type PaymentMethod = "cod" | "bkash"
 
@@ -91,6 +95,8 @@ export default function CheckoutPage() {
     totalQuantity: state?.cart?.totalQuantity || 0,
     products: state?.cart?.product || [],
   }))
+  const token = useSelector((state: RootState) => state.auth?.token)
+  const [createOrder] = useCreateOrderMutation()
 
   const [payment, setPayment] = useState<PaymentMethod>("cod")
   const [submitting, setSubmitting] = useState(false)
@@ -106,10 +112,40 @@ export default function CheckoutPage() {
     notes: "",
   })
 
+  const [couponCode, setCouponCode] = useState("")
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string
+    discount: number
+    discountType: "PERCENTAGE" | "FIXED_AMOUNT"
+    value: number
+  } | null>(null)
+  const [applyCoupon, { isLoading: applyingCoupon }] = useApplyCouponMutation()
+
   const subtotal = cartInfo.totalAmount
   const isDhaka = form.city.trim().toLowerCase() === "dhaka"
   const shipping = isDhaka ? 70 : 120
-  const total = subtotal + shipping
+  const discount = appliedCoupon?.discount || 0
+  const total = Math.max(0, subtotal - discount) + shipping
+
+  const handleApplyCoupon = async () => {
+    const code = couponCode.trim()
+    if (!code) return toast.error("Enter a coupon code")
+    if (subtotal <= 0) return toast.error("Cart is empty")
+    try {
+      const res = await applyCoupon({ code, subtotal }).unwrap()
+      setAppliedCoupon(res.data)
+      toast.success(`Coupon ${res.data.code} applied — save ৳${res.data.discount}`)
+    } catch (err: any) {
+      setAppliedCoupon(null)
+      toast.error(err?.data?.message || "Invalid coupon")
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponCode("")
+    toast.info("Coupon removed")
+  }
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -119,6 +155,11 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    if (!token) {
+      toast.error("Please login to place order")
+      router.push("/login")
+      return
+    }
     if (cartInfo.products.length === 0) {
       toast.error("Cart is empty")
       return
@@ -129,10 +170,27 @@ export default function CheckoutPage() {
     }
     setSubmitting(true)
     try {
-      await new Promise((r) => setTimeout(r, 700))
+      await createOrder({
+        fullName: `${form.firstName} ${form.lastName}`.trim(),
+        email: form.email,
+        phone: form.phone,
+        address: form.address,
+        city: form.city,
+        postalCode: form.postalCode,
+        country: form.country,
+        notes: form.notes || undefined,
+        paymentMethod: "COD",
+        couponCode: appliedCoupon?.code || undefined,
+        items: cartInfo.products.map((p: any) => ({
+          productId: p.id,
+          quantity: p.quantity || 1,
+        })),
+      }).unwrap()
       toast.success("Order placed successfully")
       dispatch(removeCart())
-      router.push("/")
+      router.push("/dashboard/orders")
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to place order")
     } finally {
       setSubmitting(false)
     }
@@ -428,11 +486,67 @@ export default function CheckoutPage() {
 
                 <Separator className="mb-4" />
 
+                {/* Coupon */}
+                <div className="mb-4">
+                  {appliedCoupon ? (
+                    <div className="flex items-center justify-between gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Ticket className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-emerald-800 tracking-wider truncate">
+                            {appliedCoupon.code}
+                          </p>
+                          <p className="text-[11px] text-emerald-700">
+                            {appliedCoupon.discountType === "PERCENTAGE"
+                              ? `${appliedCoupon.value}% off applied`
+                              : `৳${appliedCoupon.value} off applied`}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemoveCoupon}
+                        className="h-7 w-7 rounded-full hover:bg-emerald-100 flex items-center justify-center text-emerald-700"
+                        aria-label="Remove coupon"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                        <Input
+                          placeholder="Coupon code"
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                          className="pl-9 h-10 uppercase tracking-wider"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={handleApplyCoupon}
+                        disabled={applyingCoupon}
+                        variant="outline"
+                        className="h-10 border-[#1C398E] text-[#1C398E] hover:bg-blue-50"
+                      >
+                        {applyingCoupon ? "..." : "Apply"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
                 <div className="space-y-2.5 mb-5">
                   <div className="flex justify-between text-sm text-slate-600">
                     <span>Subtotal</span>
                     <span className="text-slate-900 font-medium">৳{subtotal.toFixed(2)}</span>
                   </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-sm text-emerald-700">
+                      <span>Discount ({appliedCoupon?.code})</span>
+                      <span className="font-semibold">-৳{discount.toFixed(2)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-sm text-slate-600">
                     <span>
                       Delivery{" "}

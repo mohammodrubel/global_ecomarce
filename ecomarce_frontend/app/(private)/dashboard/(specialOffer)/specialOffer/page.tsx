@@ -214,16 +214,23 @@ export default function Page() {
   if (error) return <div className="p-6">Error loading offers</div>;
 
   return (
-    <div className="p-6">
-      <Table className="border rounded-lg">
+    <div className="space-y-6">
+      <div className="pb-4 border-b border-slate-200">
+        <h1 className="text-2xl sm:text-[28px] font-semibold tracking-tight text-slate-900">
+          Special Offers
+        </h1>
+        <p className="text-sm text-slate-500 mt-1">Promotional product deals</p>
+      </div>
+      <div className="rounded-xl border border-slate-200 bg-white overflow-x-auto">
+      <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Image</TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Valid From</TableHead>
-            <TableHead>Valid Until</TableHead>
-            <TableHead>Actions</TableHead>
+          <TableRow className="bg-slate-50/60">
+            <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Image</TableHead>
+            <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Title</TableHead>
+            <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Description</TableHead>
+            <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Valid From</TableHead>
+            <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Valid Until</TableHead>
+            <TableHead className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -260,6 +267,7 @@ export default function Page() {
           ))}
         </TableBody>
       </Table>
+      </div>
     </div>
   );
 }

@@ -130,10 +130,16 @@ const EditBrandPage: React.FC = () => {
   }
 
   return (
-    <div className="mx-auto p-6 max-w-3xl">
-      <Card className="shadow-lg rounded-2xl">
+    <div className="mx-auto max-w-3xl w-full space-y-6">
+      <div className="pb-4 border-b border-slate-200">
+        <h1 className="text-2xl sm:text-[28px] font-semibold tracking-tight text-slate-900">
+          Edit Brand
+        </h1>
+        <p className="text-sm text-slate-500 mt-1">Update brand information</p>
+      </div>
+      <Card className="border-slate-200 shadow-none rounded-xl">
         <CardHeader>
-          <CardTitle className="text-xl font-semibold">Edit Brand</CardTitle>
+          <CardTitle className="text-[15px] font-semibold">Brand Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Upload Photo */}

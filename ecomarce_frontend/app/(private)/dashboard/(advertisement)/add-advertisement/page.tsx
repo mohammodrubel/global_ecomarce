@@ -80,10 +80,16 @@ export default function CreateAdvertisementPage() {
   };
 
   return (
-    <div className="w-[60%] my-10 mx-auto">
-      <Card>
+    <div className="max-w-3xl mx-auto w-full space-y-6">
+      <div className="pb-4 border-b border-slate-200">
+        <h1 className="text-2xl sm:text-[28px] font-semibold tracking-tight text-slate-900">
+          Add Advertisement
+        </h1>
+        <p className="text-sm text-slate-500 mt-1">Create a new product ad</p>
+      </div>
+      <Card className="border-slate-200 shadow-none rounded-xl">
         <CardHeader>
-          <CardTitle>Create Advertisement</CardTitle>
+          <CardTitle className="text-[15px] font-semibold">Advertisement Details</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>

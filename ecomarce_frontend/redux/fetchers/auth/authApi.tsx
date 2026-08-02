@@ -1,12 +1,22 @@
 import { baseApi } from "@/redux/api/baseApi";
+import { tagTypes } from "@/redux/TagTypes";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     me: builder.query({
       query: () => ({
-        url: `/auth/me`,
+        url: `/user/me`,
         method: "GET",
       }),
+      providesTags: [tagTypes.user],
+    }),
+    updateMe: builder.mutation({
+      query: (data) => ({
+        url: `/user/me`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.user],
     }),
     changePassword: builder.mutation({
       query: (data) => ({
@@ -40,6 +50,7 @@ export const authApi = baseApi.injectEndpoints({
 
 export const {
   useMeQuery,
+  useUpdateMeMutation,
   useChangePasswordMutation,
   useLoginMutation,
   useLogoutFromDbMutation,

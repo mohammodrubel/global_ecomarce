@@ -87,11 +87,16 @@ export default function EditCategory() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold mb-6">Edit Category</h1>
+          <div className="pb-4 mb-6 border-b border-slate-200">
+            <h1 className="text-2xl sm:text-[28px] font-semibold tracking-tight text-slate-900">
+              Edit Category
+            </h1>
+            <p className="text-sm text-slate-500 mt-1">Update category information</p>
+          </div>
 
-          <Card>
+          <Card className="border-slate-200 shadow-none rounded-xl">
             <CardHeader>
-              <CardTitle>Update Category</CardTitle>
+              <CardTitle className="text-[15px] font-semibold">Update Category</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">

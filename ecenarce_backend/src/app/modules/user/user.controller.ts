@@ -25,6 +25,26 @@ const GetSingleUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const GetMe = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.GetMe(req.user.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Profile retrieved successfully',
+    data: result,
+  });
+});
+
+const UpdateMe = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.UpdateMe(req.user.id, req.body);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Profile updated successfully',
+    data: result,
+  });
+});
+
 const DeleteUser = catchAsync(async (req: Request, res: Response) => {
   const id = req.params?.id;
   await UserService.DeleteUser(id);
@@ -37,5 +57,7 @@ const DeleteUser = catchAsync(async (req: Request, res: Response) => {
 export const UserController = {
   GetAllUsers,
   GetSingleUser,
+  GetMe,
+  UpdateMe,
   DeleteUser,
 };
