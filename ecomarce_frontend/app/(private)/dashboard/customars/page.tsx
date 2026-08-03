@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,14 +20,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Search,
   Filter,
   Mail,
   Phone,
   MoreHorizontal,
-  UserPlus,
+  Users as UsersIcon,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -35,98 +35,100 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import { useGetAllUsersQuery, useDeleteUserMutation } from "@/redux/fetchers/user/userApi";
+import { TableSkeleton } from "@/components/dashboard/LoadingSkeleton";
+import { ErrorState } from "@/components/dashboard/ErrorState";
+import { EmptyState } from "@/components/dashboard/EmptyState";
+
+type CustomerStatus = "VIP" | "Active" | "New" | "Inactive";
+
+const VIP_THRESHOLD = 5;
+const ACTIVE_DAYS = 60;
+const NEW_DAYS = 30;
+
+const deriveStatus = (
+  ordersCount: number,
+  lastOrder: string | null,
+  joinDate: string,
+): CustomerStatus => {
+  const now = Date.now();
+  const joinAgeDays = (now - new Date(joinDate).getTime()) / (1000 * 60 * 60 * 24);
+  if (ordersCount >= VIP_THRESHOLD) return "VIP";
+  if (lastOrder) {
+    const days = (now - new Date(lastOrder).getTime()) / (1000 * 60 * 60 * 24);
+    if (days <= ACTIVE_DAYS) return "Active";
+    return "Inactive";
+  }
+  if (joinAgeDays <= NEW_DAYS) return "New";
+  return "Inactive";
+};
+
+const statusColor = (s: CustomerStatus) => {
+  switch (s) {
+    case "VIP": return "bg-purple-100 text-purple-800";
+    case "Active": return "bg-green-100 text-green-800";
+    case "New": return "bg-blue-100 text-blue-800";
+    case "Inactive": return "bg-gray-100 text-gray-800";
+  }
+};
 
 export default function CustomersManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const customers = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      phone: "+1 (555) 123-4567",
-      orders: 12,
-      totalSpent: 1299.99,
-      status: "Active",
-      joinDate: "2024-01-15",
-      lastOrder: "2024-03-10",
-      avatar: "/placeholder.svg?height=40&width=40&text=JD",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      phone: "+1 (555) 234-5678",
-      orders: 8,
-      totalSpent: 899.99,
-      status: "Active",
-      joinDate: "2024-02-20",
-      lastOrder: "2024-03-12",
-      avatar: "/placeholder.svg?height=40&width=40&text=JS",
-    },
-    {
-      id: 3,
-      name: "Bob Johnson",
-      email: "bob@example.com",
-      phone: "+1 (555) 345-6789",
-      orders: 5,
-      totalSpent: 459.99,
-      status: "Inactive",
-      joinDate: "2023-12-05",
-      lastOrder: "2024-01-15",
-      avatar: "/placeholder.svg?height=40&width=40&text=BJ",
-    },
-    {
-      id: 4,
-      name: "Alice Brown",
-      email: "alice@example.com",
-      phone: "+1 (555) 456-7890",
-      orders: 15,
-      totalSpent: 2199.99,
-      status: "VIP",
-      joinDate: "2023-08-10",
-      lastOrder: "2024-03-14",
-      avatar: "/placeholder.svg?height=40&width=40&text=AB",
-    },
-    {
-      id: 5,
-      name: "Charlie Wilson",
-      email: "charlie@example.com",
-      phone: "+1 (555) 567-8901",
-      orders: 3,
-      totalSpent: 199.99,
-      status: "New",
-      joinDate: "2024-03-01",
-      lastOrder: "2024-03-05",
-      avatar: "/placeholder.svg?height=40&width=40&text=CW",
-    },
-  ];
+  const { data, isLoading, isError, refetch } = useGetAllUsersQuery(undefined);
+  const [deleteUser] = useDeleteUserMutation();
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Active":
-        return "bg-green-100 text-green-800";
-      case "VIP":
-        return "bg-purple-100 text-purple-800";
-      case "New":
-        return "bg-blue-100 text-blue-800";
-      case "Inactive":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+  const customers = useMemo(() => {
+    const list = (data?.data || []) as any[];
+    return list.map((u) => ({
+      id: u.id,
+      name: u.full_name,
+      email: u.email,
+      phone: u.phone || "—",
+      orders: u.ordersCount || 0,
+      totalSpent: Number(u.totalSpent || 0),
+      joinDate: u.createdAt,
+      lastOrder: u.lastOrder,
+      status: deriveStatus(u.ordersCount || 0, u.lastOrder, u.createdAt),
+    }));
+  }, [data]);
+
+  const stats = useMemo(() => {
+    const total = customers.length;
+    const active = customers.filter((c) => c.status === "Active" || c.status === "VIP").length;
+    const vip = customers.filter((c) => c.status === "VIP").length;
+    const newThisMonth = customers.filter(
+      (c) => (Date.now() - new Date(c.joinDate).getTime()) / (1000 * 60 * 60 * 24) <= 30,
+    ).length;
+    return { total, active, vip, newThisMonth };
+  }, [customers]);
+
+  const filteredCustomers = useMemo(() => {
+    return customers.filter((c) => {
+      const q = searchTerm.toLowerCase();
+      const matchesSearch =
+        !q ||
+        c.name?.toLowerCase().includes(q) ||
+        c.email?.toLowerCase().includes(q) ||
+        c.phone?.toLowerCase().includes(q);
+      const matchesStatus =
+        statusFilter === "all" ||
+        c.status.toLowerCase() === statusFilter.toLowerCase();
+      return matchesSearch && matchesStatus;
+    });
+  }, [customers, searchTerm, statusFilter]);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Deactivate this customer?")) return;
+    try {
+      await deleteUser(id).unwrap();
+      toast.success("Customer deactivated");
+    } catch (e: any) {
+      toast.error(e?.data?.message || "Failed");
     }
   };
-
-  const filteredCustomers = customers.filter((customer) => {
-    const matchesSearch =
-      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" ||
-      customer.status.toLowerCase() === statusFilter.toLowerCase();
-    return matchesSearch && matchesStatus;
-  });
 
   return (
     <div className="space-y-6">
@@ -136,22 +138,18 @@ export default function CustomersManagement() {
             Customers
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Manage your customer base and relationships
+            {isLoading ? "Loading..." : `${customers.length} registered customers`}
           </p>
         </div>
-        <Button size="sm" className="bg-[#2563EB] hover:bg-[#1D4ED8]">
-          <UserPlus className="h-4 w-4 mr-2" />
-          Add Customer
-        </Button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { title: "Total Customers", value: "1,234", hint: "+8.2% from last month" },
-          { title: "Active Customers", value: "1,089", hint: "88% of total" },
-          { title: "VIP Customers", value: "67", hint: "High value customers" },
-          { title: "New This Month", value: "78", hint: "+12% growth" },
+          { title: "Total Customers", value: stats.total, hint: "All time" },
+          { title: "Active Customers", value: stats.active, hint: `${stats.total ? Math.round((stats.active / stats.total) * 100) : 0}% of total` },
+          { title: "VIP Customers", value: stats.vip, hint: `${VIP_THRESHOLD}+ orders` },
+          { title: "New This Month", value: stats.newThisMonth, hint: "Last 30 days" },
         ].map((s) => (
           <Card key={s.title} className="border-slate-200 shadow-none rounded-xl">
             <CardContent className="p-5">
@@ -176,7 +174,7 @@ export default function CustomersManagement() {
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search customers..."
+                  placeholder="Search by name, email, phone..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-8"
@@ -203,7 +201,7 @@ export default function CustomersManagement() {
         </CardContent>
       </Card>
 
-      {/* Customers Table */}
+      {/* Table */}
       <Card className="border-slate-200 shadow-none rounded-xl">
         <CardHeader>
           <CardTitle className="text-[15px] font-semibold">
@@ -211,90 +209,108 @@ export default function CustomersManagement() {
           </CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Orders</TableHead>
-                <TableHead>Total Spent</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Join Date</TableHead>
-                <TableHead>Last Order</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredCustomers.map((customer) => (
-                <TableRow key={customer.id}>
-                  <TableCell>
-                    <div className="flex items-center space-x-3">
-                      <Avatar>
-                        <AvatarImage
-                          src={customer.avatar || "/placeholder.svg"}
-                        />
-                        <AvatarFallback>
-                          {customer.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">{customer.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          ID: {customer.id}
+          {isLoading && <TableSkeleton rows={5} />}
+          {isError && <ErrorState onRetry={refetch} />}
+          {!isLoading && !isError && filteredCustomers.length === 0 && (
+            <EmptyState
+              Icon={UsersIcon}
+              title="No customers found"
+              description="Try adjusting search or filter."
+            />
+          )}
+
+          {!isLoading && !isError && filteredCustomers.length > 0 && (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Orders</TableHead>
+                  <TableHead>Total Spent</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Join Date</TableHead>
+                  <TableHead>Last Order</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredCustomers.map((customer) => (
+                  <TableRow key={customer.id}>
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        <Avatar>
+                          <AvatarFallback>
+                            {customer.name
+                              ?.split(" ")
+                              .map((n: string) => n[0])
+                              .slice(0, 2)
+                              .join("")
+                              .toUpperCase() || "?"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">{customer.name}</div>
+                          <div className="text-xs text-muted-foreground font-mono">
+                            #{customer.id.slice(0, 8)}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="flex items-center text-sm">
-                        <Mail className="h-3 w-3 mr-1" />
-                        {customer.email}
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="flex items-center text-sm">
+                          <Mail className="h-3 w-3 mr-1" />
+                          {customer.email}
+                        </div>
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <Phone className="h-3 w-3 mr-1" />
+                          {customer.phone}
+                        </div>
                       </div>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Phone className="h-3 w-3 mr-1" />
-                        {customer.phone}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {customer.orders}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    ${customer.totalSpent}
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(customer.status)}>
-                      {customer.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{customer.joinDate}</TableCell>
-                  <TableCell>{customer.lastOrder}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>View Profile</DropdownMenuItem>
-                        <DropdownMenuItem>View Orders</DropdownMenuItem>
-                        <DropdownMenuItem>Send Email</DropdownMenuItem>
-                        <DropdownMenuItem>Edit Customer</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
-                          Deactivate
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {customer.orders}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      ৳{customer.totalSpent.toFixed(2)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={statusColor(customer.status)}>
+                        {customer.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {new Date(customer.joinDate).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {customer.lastOrder
+                        ? new Date(customer.lastOrder).toLocaleDateString()
+                        : "—"}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>View Profile</DropdownMenuItem>
+                          <DropdownMenuItem>View Orders</DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDelete(customer.id)}
+                            className="text-red-600"
+                          >
+                            Deactivate
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

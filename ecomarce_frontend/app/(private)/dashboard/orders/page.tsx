@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Ban,
   CheckCircle2,
@@ -12,6 +12,7 @@ import {
   MapPin,
   Package,
   PackageOpen,
+  Star,
   Truck,
   XCircle,
 } from "lucide-react";
@@ -29,6 +30,18 @@ import {
   useCancelOrderMutation,
   useGetMyOrdersQuery,
 } from "@/redux/fetchers/order/orderApi";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  useCreateReviewMutation,
+  useGetMyReviewsQuery,
+} from "@/redux/fetchers/review/reviewApi";
 
 const statusMap = (s: string) => {
   switch (s) {
@@ -47,6 +60,47 @@ export default function UserOrdersPage() {
   const [openId, setOpenId] = useState<string | null>(null);
 
   const orders = data?.data || [];
+
+  const { data: myReviewsRes } = useGetMyReviewsQuery(undefined);
+  const reviewedProductIds = useMemo(
+    () => new Set<string>((myReviewsRes?.data || []).map((r: any) => r.productId)),
+    [myReviewsRes],
+  );
+
+  const [reviewTarget, setReviewTarget] = useState<{
+    productId: string;
+    productName: string;
+  } | null>(null);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewHover, setReviewHover] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [createReview, { isLoading: submittingReview }] = useCreateReviewMutation();
+
+  const openReview = (productId: string, productName: string) => {
+    setReviewTarget({ productId, productName });
+    setReviewRating(0);
+    setReviewHover(0);
+    setReviewComment("");
+  };
+
+  const submitReview = async () => {
+    if (!reviewTarget) return;
+    if (reviewRating < 1) {
+      toast.error("Select a rating");
+      return;
+    }
+    try {
+      await createReview({
+        productId: reviewTarget.productId,
+        rating: reviewRating,
+        comment: reviewComment.trim() || undefined,
+      }).unwrap();
+      toast.success("Review submitted");
+      setReviewTarget(null);
+    } catch (e: any) {
+      toast.error(e?.data?.message || "Failed to submit review");
+    }
+  };
 
   const handleCancel = async (id: string) => {
     if (!confirm("Cancel this order?")) return;
@@ -84,6 +138,89 @@ export default function UserOrdersPage() {
           }
         />
       )}
+
+      <Dialog
+        open={reviewTarget !== null}
+        onOpenChange={(open) => !open && setReviewTarget(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Write a review</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-slate-500">Product</p>
+              <p className="font-medium text-slate-900 line-clamp-2">
+                {reviewTarget?.productName}
+              </p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-slate-700 mb-2 block">
+                Rating
+              </Label>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((n) => {
+                  const filled = (reviewHover || reviewRating) >= n;
+                  return (
+                    <button
+                      key={n}
+                      type="button"
+                      onMouseEnter={() => setReviewHover(n)}
+                      onMouseLeave={() => setReviewHover(0)}
+                      onClick={() => setReviewRating(n)}
+                      className="p-1"
+                      aria-label={`${n} star${n === 1 ? "" : "s"}`}
+                    >
+                      <Star
+                        className={`h-7 w-7 transition-colors ${
+                          filled
+                            ? "fill-amber-400 text-amber-400"
+                            : "text-slate-300"
+                        }`}
+                      />
+                    </button>
+                  );
+                })}
+                <span className="ml-2 text-sm text-slate-600">
+                  {reviewRating > 0 ? `${reviewRating}/5` : "Select"}
+                </span>
+              </div>
+            </div>
+            <div>
+              <Label
+                htmlFor="review-comment"
+                className="text-sm font-medium text-slate-700 mb-1.5 block"
+              >
+                Comment (optional)
+              </Label>
+              <textarea
+                id="review-comment"
+                rows={4}
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+                placeholder="Share your experience..."
+                className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-[#2563EB] focus-visible:ring-2 focus-visible:ring-[#2563EB]/20"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setReviewTarget(null)}
+              disabled={submittingReview}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={submitReview}
+              disabled={submittingReview || reviewRating < 1}
+              className="bg-[#2563EB] hover:bg-[#1D4ED8]"
+            >
+              {submittingReview ? "Submitting..." : "Submit review"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="space-y-3">
         {orders.map((o: any) => {
@@ -148,36 +285,68 @@ export default function UserOrdersPage() {
                           Items ({o.items.length})
                         </h3>
                         <div className="space-y-2">
-                          {o.items.map((it: any) => (
-                            <div
-                              key={it.id}
-                              className="flex items-center gap-3 bg-white rounded-lg p-2.5 border border-slate-100"
-                            >
-                              <div className="relative w-11 h-11 rounded-md overflow-hidden bg-slate-100 flex-shrink-0">
-                                <Image
-                                  src={it.product?.images?.[0] || "/placeholder.svg"}
-                                  alt={it.product?.name || "Product"}
-                                  fill
-                                  sizes="44px"
-                                  className="object-cover"
-                                />
+                          {o.items.map((it: any) => {
+                            const canReview =
+                              o.status === "DELIVERED" &&
+                              !reviewedProductIds.has(it.productId);
+                            const alreadyReviewed =
+                              o.status === "DELIVERED" &&
+                              reviewedProductIds.has(it.productId);
+                            return (
+                              <div
+                                key={it.id}
+                                className="flex items-center gap-3 bg-white rounded-lg p-2.5 border border-slate-100"
+                              >
+                                <div className="relative w-11 h-11 rounded-md overflow-hidden bg-slate-100 flex-shrink-0">
+                                  <Image
+                                    src={it.product?.images?.[0] || "/placeholder.svg"}
+                                    alt={it.product?.name || "Product"}
+                                    fill
+                                    sizes="44px"
+                                    className="object-cover"
+                                  />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <Link
+                                    href={`/shop/${it.productId}`}
+                                    className="text-sm font-medium text-slate-900 hover:text-[#2563EB] line-clamp-1"
+                                  >
+                                    {it.product?.name || "Product"}
+                                  </Link>
+                                  <p className="text-xs text-slate-500 mt-0.5">
+                                    ৳{it.price.toFixed(2)} × {it.quantity}
+                                  </p>
+                                </div>
+                                <div className="flex flex-col items-end gap-1">
+                                  <p className="text-sm font-semibold text-slate-900 whitespace-nowrap">
+                                    ৳{(it.price * it.quantity).toFixed(2)}
+                                  </p>
+                                  {canReview && (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() =>
+                                        openReview(
+                                          it.productId,
+                                          it.product?.name || "Product",
+                                        )
+                                      }
+                                      className="h-7 text-[11px] border-amber-300 text-amber-700 hover:bg-amber-50"
+                                    >
+                                      <Star className="h-3 w-3 mr-1" />
+                                      Write review
+                                    </Button>
+                                  )}
+                                  {alreadyReviewed && (
+                                    <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-medium">
+                                      <CheckCircle2 className="h-3 w-3" />
+                                      Reviewed
+                                    </span>
+                                  )}
+                                </div>
                               </div>
-                              <div className="min-w-0 flex-1">
-                                <Link
-                                  href={`/shop/${it.productId}`}
-                                  className="text-sm font-medium text-slate-900 hover:text-[#2563EB] line-clamp-1"
-                                >
-                                  {it.product?.name || "Product"}
-                                </Link>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                  ৳{it.price.toFixed(2)} × {it.quantity}
-                                </p>
-                              </div>
-                              <p className="text-sm font-semibold text-slate-900 whitespace-nowrap">
-                                ৳{(it.price * it.quantity).toFixed(2)}
-                              </p>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
 

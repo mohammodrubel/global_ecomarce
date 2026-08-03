@@ -567,6 +567,42 @@ export const updateProductImages = async (
   return result;
 };
 
+export const getBestsellers = async (limit = 10) => {
+  const grouped = await prisma.orderItem.groupBy({
+    by: ['productId'],
+    where: { order: { status: 'DELIVERED' } },
+    _sum: { quantity: true },
+    orderBy: { _sum: { quantity: 'desc' } },
+    take: limit,
+  });
+
+  if (grouped.length === 0) return [];
+
+  const ids = grouped.map((g) => g.productId);
+  const products = await prisma.product.findMany({
+    where: { id: { in: ids }, isDeleted: false, inStock: true },
+    include: {
+      discounts: {
+        where: {
+          isActive: true,
+          startDate: { lte: new Date() },
+          endDate: { gte: new Date() },
+        },
+      },
+      category: { select: { id: true, name: true } },
+      brand: { select: { id: true, name: true, logo: true } },
+    },
+  });
+
+  const salesMap = new Map(
+    grouped.map((g) => [g.productId, g._sum.quantity || 0]),
+  );
+
+  return products
+    .map((p) => ({ ...p, salesCount: salesMap.get(p.id) || 0 }))
+    .sort((a, b) => b.salesCount - a.salesCount);
+};
+
 export const ProductService = {
   createProduct,
   getProduct,
@@ -578,4 +614,5 @@ export const ProductService = {
   getRelatedCategory,
   getDiscountedProducts,
   updateProductImages,
+  getBestsellers,
 };

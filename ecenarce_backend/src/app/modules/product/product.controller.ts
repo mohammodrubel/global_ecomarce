@@ -70,6 +70,19 @@ const newProduct = catchAsync(async (req, res) => {
   });
 });
 
+// Get bestsellers (top delivered)
+const getBestsellers = catchAsync(async (req, res) => {
+  const limit = Number(req.query.limit) || 10;
+  const result = await ProductService.getBestsellers(limit);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Bestseller products fetched successfully',
+    data: result,
+  });
+});
+
 // Get discounted products
 const getDiscountedProducts = catchAsync(async (req, res) => {
   const result = await ProductService.getDiscountedProducts();
@@ -147,4 +160,5 @@ export const ProductController = {
   relatedCategory,
   getDiscountedProducts,
   updateProductImages,
+  getBestsellers,
 };

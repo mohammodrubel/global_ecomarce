@@ -10,6 +10,7 @@ export const tagTypes = {
   productColor:"productColor",
   coupon: "coupon",
   order: "order",
+  review: "review",
 };
 
 export const tagTypesList = [
@@ -24,4 +25,5 @@ export const tagTypesList = [
   tagTypes.productColor,
   tagTypes.coupon,
   tagTypes.order,
+  tagTypes.review,
 ];

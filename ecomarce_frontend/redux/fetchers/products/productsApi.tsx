@@ -68,6 +68,14 @@ export const productApi = baseApi.injectEndpoints({
       providesTags: [tagTypes.product],
     }),
 
+    getBestsellerProducts: builder.query({
+      query: (limit: number = 20) => ({
+        url: `/products/bestsellers?limit=${limit}`,
+        method: "GET",
+      }),
+      providesTags: [tagTypes.product],
+    }),
+
     getSingleProduct: builder.query({
       query: (id) => ({
         url: `/products/${id}`,
@@ -95,4 +103,5 @@ export const {
   useDeleteProductMutation,
   useGetAllfetchersProductsQuery,
   useGetAllNewProductsQuery,
+  useGetBestsellerProductsQuery,
 } = productApi;

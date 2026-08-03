@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import {
@@ -35,64 +36,17 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { StatusBadge } from "@/components/dashboard/StatusBadge";
 import { RootState } from "@/redux/store";
-
-const stats = [
-  {
-    title: "Total Revenue",
-    value: "৳45,231",
-    change: "12.5%",
-    direction: "up" as const,
-    Icon: DollarSign,
-    hint: "vs last month",
-  },
-  {
-    title: "Total Orders",
-    value: "2,350",
-    change: "15.3%",
-    direction: "up" as const,
-    Icon: ShoppingCart,
-    hint: "vs last month",
-  },
-  {
-    title: "Customers",
-    value: "1,234",
-    change: "8.2%",
-    direction: "up" as const,
-    Icon: Users,
-    hint: "vs last month",
-  },
-  {
-    title: "Products",
-    value: "567",
-    change: "2.1%",
-    direction: "down" as const,
-    Icon: Package,
-    hint: "vs last month",
-  },
-];
-
-const salesData = [
-  { name: "Jan", sales: 4000, orders: 240 },
-  { name: "Feb", sales: 3000, orders: 198 },
-  { name: "Mar", sales: 5000, orders: 300 },
-  { name: "Apr", sales: 4500, orders: 278 },
-  { name: "May", sales: 6000, orders: 389 },
-  { name: "Jun", sales: 5500, orders: 349 },
-];
-
-const recentOrders = [
-  { id: "ORD-8F12A", customer: "John Doe", amount: "৳299", status: "Completed", date: "Mar 15" },
-  { id: "ORD-3B4E2", customer: "Jane Smith", amount: "৳149", status: "Processing", date: "Mar 15" },
-  { id: "ORD-9C21F", customer: "Bob Johnson", amount: "৳89", status: "Shipped", date: "Mar 14" },
-  { id: "ORD-1D77A", customer: "Alice Brown", amount: "৳199", status: "Pending", date: "Mar 14" },
-];
+import { useGetAllOrdersQuery } from "@/redux/fetchers/order/orderApi";
+import { useGetAllProductsQuery } from "@/redux/fetchers/products/productsApi";
+import { useGetAllUsersQuery } from "@/redux/fetchers/user/userApi";
 
 const statusTone = (s: string) => {
   switch (s) {
-    case "Completed": return "success" as const;
-    case "Processing": return "warning" as const;
-    case "Shipped": return "info" as const;
-    case "Pending": return "neutral" as const;
+    case "DELIVERED": return "success" as const;
+    case "PROCESSING": return "warning" as const;
+    case "SHIPPED": return "info" as const;
+    case "PENDING": return "neutral" as const;
+    case "CANCELLED": return "error" as const;
     default: return "neutral" as const;
   }
 };
@@ -106,8 +60,118 @@ const quickActions = [
   { title: "Add Ad", href: "/dashboard/add-advertisement", Icon: Megaphone },
 ];
 
+const monthShort = (d: Date) =>
+  d.toLocaleString("en-US", { month: "short" });
+
 export default function AdminDashboardHome() {
   const user = useSelector((state: RootState) => state.auth?.user);
+
+  const { data: ordersRes } = useGetAllOrdersQuery(undefined);
+  const { data: productsRes } = useGetAllProductsQuery([]);
+  const { data: usersRes } = useGetAllUsersQuery(undefined);
+
+  const orders = ordersRes?.data || [];
+  const productsMeta = productsRes?.meta || { total: 0 };
+  const customers = usersRes?.data || [];
+
+  const {
+    totalRevenue,
+    totalOrders,
+    revenueChange,
+    ordersChange,
+    salesChart,
+    recentOrders,
+  } = useMemo(() => {
+    const nonCancelled = orders.filter((o: any) => o.status !== "CANCELLED");
+    const totalRevenue = nonCancelled.reduce(
+      (s: number, o: any) => s + (o.totalPrice || 0),
+      0,
+    );
+    const totalOrders = nonCancelled.length;
+
+    // last 6 months buckets
+    const now = new Date();
+    const buckets: { key: string; name: string; sales: number; orders: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      buckets.push({ key, name: monthShort(d), sales: 0, orders: 0 });
+    }
+    const byKey: Record<string, (typeof buckets)[number]> = {};
+    buckets.forEach((b) => (byKey[b.key] = b));
+
+    nonCancelled.forEach((o: any) => {
+      const d = new Date(o.createdAt);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      if (byKey[key]) {
+        byKey[key].sales += o.totalPrice || 0;
+        byKey[key].orders += 1;
+      }
+    });
+
+    // current vs previous month change
+    const cur = buckets[5];
+    const prev = buckets[4];
+    const revenueChange =
+      prev && prev.sales > 0
+        ? ((cur.sales - prev.sales) / prev.sales) * 100
+        : 0;
+    const ordersChange =
+      prev && prev.orders > 0
+        ? ((cur.orders - prev.orders) / prev.orders) * 100
+        : 0;
+
+    const recentOrders = [...orders]
+      .sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )
+      .slice(0, 5);
+
+    return {
+      totalRevenue,
+      totalOrders,
+      revenueChange,
+      ordersChange,
+      salesChart: buckets,
+      recentOrders,
+    };
+  }, [orders]);
+
+  const stats = [
+    {
+      title: "Total Revenue",
+      value: `৳${totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+      change: `${Math.abs(revenueChange).toFixed(1)}%`,
+      direction: (revenueChange >= 0 ? "up" : "down") as "up" | "down",
+      Icon: DollarSign,
+      hint: "vs last month",
+    },
+    {
+      title: "Total Orders",
+      value: totalOrders.toLocaleString(),
+      change: `${Math.abs(ordersChange).toFixed(1)}%`,
+      direction: (ordersChange >= 0 ? "up" : "down") as "up" | "down",
+      Icon: ShoppingCart,
+      hint: "vs last month",
+    },
+    {
+      title: "Customers",
+      value: customers.length.toLocaleString(),
+      change: "",
+      direction: "up" as const,
+      Icon: Users,
+      hint: "Registered users",
+    },
+    {
+      title: "Products",
+      value: (productsMeta.total || 0).toLocaleString(),
+      change: "",
+      direction: "up" as const,
+      Icon: Package,
+      hint: "In catalog",
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -166,7 +230,7 @@ export default function AdminDashboardHome() {
           }
         >
           <ResponsiveContainer width="100%" height={260}>
-            <AreaChart data={salesData} margin={{ left: -20, right: 5, top: 5 }}>
+            <AreaChart data={salesChart} margin={{ left: -20, right: 5, top: 5 }}>
               <defs>
                 <linearGradient id="salesFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#2563EB" stopOpacity={0.2} />
@@ -195,12 +259,12 @@ export default function AdminDashboardHome() {
         </SectionCard>
 
         <SectionCard
-          title="Weekly Orders"
-          description="Current week"
+          title="Monthly Orders"
+          description="Last 6 months"
           Icon={BarChart3}
         >
           <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={salesData} margin={{ left: -20, right: 5 }}>
+            <BarChart data={salesChart} margin={{ left: -20, right: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
               <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
               <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
@@ -242,21 +306,32 @@ export default function AdminDashboardHome() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {recentOrders.map((o) => (
+                {recentOrders.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="text-center py-10 text-sm text-slate-500">
+                      No orders yet.
+                    </td>
+                  </tr>
+                )}
+                {recentOrders.map((o: any) => (
                   <tr key={o.id} className="hover:bg-slate-50/60 transition-colors">
                     <td className="px-5 py-3.5">
-                      <p className="font-mono font-semibold text-slate-900 text-xs">{o.id}</p>
-                      <p className="text-[11px] text-slate-500 sm:hidden">{o.customer}</p>
-                      <p className="text-[11px] text-slate-400">{o.date}</p>
+                      <p className="font-mono font-semibold text-slate-900 text-xs">
+                        #{o.id.slice(0, 8).toUpperCase()}
+                      </p>
+                      <p className="text-[11px] text-slate-500 sm:hidden">{o.fullName}</p>
+                      <p className="text-[11px] text-slate-400">
+                        {new Date(o.createdAt).toLocaleDateString()}
+                      </p>
                     </td>
                     <td className="px-5 py-3.5 hidden sm:table-cell text-slate-700 font-medium">
-                      {o.customer}
+                      {o.fullName}
                     </td>
                     <td className="px-5 py-3.5">
                       <StatusBadge tone={statusTone(o.status)}>{o.status}</StatusBadge>
                     </td>
                     <td className="px-5 py-3.5 text-right font-semibold text-slate-900">
-                      {o.amount}
+                      ৳{(o.totalPrice || 0).toFixed(2)}
                     </td>
                   </tr>
                 ))}

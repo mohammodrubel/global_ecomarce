@@ -12,13 +12,39 @@ const userSafeSelect = {
 };
 
 const GetAllUsers = async () => {
-  const result = await prisma.user.findMany({
+  const users = await prisma.user.findMany({
     where: {
       isDeleted: false,
+      role: 'USER',
     },
-    select: userSafeSelect,
+    select: {
+      ...userSafeSelect,
+      orders: {
+        where: { status: { not: 'CANCELLED' } },
+        select: {
+          totalPrice: true,
+          createdAt: true,
+          phone: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      },
+    },
   });
-  return result;
+
+  return users.map((u) => {
+    const ordersCount = u.orders.length;
+    const totalSpent = u.orders.reduce((s, o) => s + (o.totalPrice || 0), 0);
+    const lastOrder = u.orders[0]?.createdAt || null;
+    const phone = u.orders[0]?.phone || null;
+    const { orders: _orders, ...rest } = u;
+    return {
+      ...rest,
+      phone,
+      ordersCount,
+      totalSpent: Number(totalSpent.toFixed(2)),
+      lastOrder,
+    };
+  });
 };
 
 const GetSingleUser = async (id: string) => {

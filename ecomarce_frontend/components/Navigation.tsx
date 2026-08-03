@@ -261,14 +261,15 @@ export function Navigation() {
                   type="button"
                   onClick={copyCoupon}
                   title="Click to copy code"
-                  className="ml-3 hidden xl:inline-flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-md bg-gradient-to-r from-amber-400 to-orange-500 text-slate-900 text-xs font-bold hover:from-amber-500 hover:to-orange-600 transition-all shadow-sm"
+                  style={{ backgroundColor: "#FF6347" }}
+                  className="ml-3 hidden xl:inline-flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-md text-white text-xs font-bold shadow-sm"
                 >
-                  <span className="inline-flex items-center gap-1 bg-white/40 rounded px-1.5 py-0.5">
+                  <span className="inline-flex items-center gap-1 bg-white/20 rounded px-1.5 py-0.5">
                     <Ticket className="h-3.5 w-3.5" />
                     {couponLabel}
                   </span>
                   <span className="tracking-wider">{latestCoupon.code}</span>
-                  <Copy className="h-3 w-3 opacity-70" />
+                  <Copy className="h-3 w-3 opacity-80" />
                 </button>
               )}
             </div>

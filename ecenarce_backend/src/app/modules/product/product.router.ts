@@ -19,6 +19,7 @@ router
 
 router.get('/fetchers-products', ProductController.fetchersProduct);
 router.get('/new-products', ProductController.newProduct);
+router.get('/bestsellers', ProductController.getBestsellers);
 router.get('/related-products/:id', ProductController.relatedCategory);
 router.get('/discounted-products', ProductController.getDiscountedProducts);
 
