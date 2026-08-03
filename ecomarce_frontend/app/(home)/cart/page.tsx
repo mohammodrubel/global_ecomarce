@@ -1,13 +1,11 @@
 "use client"
 
-import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { useSelector, useDispatch } from "react-redux"
 import {
@@ -31,8 +29,6 @@ export default function CartPage() {
   const shipping = subtotal > 50 ? 0 : 9.99
   const tax = subtotal * 0.08
   const total = subtotal + shipping + tax
-
-  const [promoCode, setPromoCode] = useState("")
 
   const increment = (id:string)=>{
     dispatch(incrementQuantity({id:id}))
@@ -187,18 +183,6 @@ export default function CartPage() {
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total</span>
                   <span>${total.toFixed(2)}</span>
-                </div>
-              </div>
-
-              {/* Promo Code */}
-              <div className="mb-6">
-                <div className="flex gap-2">
-                  <Input 
-                    placeholder="Promo code" 
-                    value={promoCode} 
-                    onChange={(e) => setPromoCode(e.target.value)} 
-                  />
-                  <Button variant="outline">Apply</Button>
                 </div>
               </div>
 

@@ -66,9 +66,9 @@ export function Header() {
         Skip to content
       </a>
 
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 max-w-[1400px]">
         {/* Desktop: single row. Mobile: two rows */}
-        <div className="flex items-center gap-2 sm:gap-4 lg:gap-8 py-3">
+        <div className="flex items-center gap-3 sm:gap-6 lg:gap-10 py-4">
           {/* Logo */}
           <div className="flex items-center shrink-0">
             <Link
@@ -86,36 +86,35 @@ export function Header() {
             role="search"
             onSubmit={handleSubmit}
             aria-label="Search products"
-            className="hidden md:flex flex-1 max-w-2xl mx-auto"
+            className="hidden md:flex flex-1 max-w-4xl mx-auto"
           >
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search products, brands, categories..."
-              className="rounded-r-none border-r-0 border-slate-300 focus-visible:ring-2 focus-visible:ring-[#1C398E] h-10"
+              className="rounded-r-none border-r-0 border-slate-300 focus-visible:ring-2 focus-visible:ring-[#1C398E] h-12 text-base px-4"
               aria-label="Search products"
             />
             <Button
               type="submit"
-              className="rounded-l-none bg-[#1C398E] hover:bg-[#152B6E] px-5 h-10"
+              className="rounded-l-none bg-[#1C398E] hover:bg-[#152B6E] px-7 h-12"
               aria-label="Submit search"
             >
-              <Search className="h-4 w-4" />
+              <Search className="h-5 w-5" />
             </Button>
           </form>
 
           {/* Right: icons */}
-          <div className="flex items-center gap-1 sm:gap-2 ml-auto shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 ml-auto shrink-0">
             <Button
               variant="ghost"
-              size="icon"
-              className="relative hidden sm:inline-flex  text-slate-700"
+              className="relative hidden sm:inline-flex text-slate-700 h-12 w-12 rounded-lg "
               aria-label="Wishlist"
               asChild
             >
               <Link href="/wishlist">
-                <Heart className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center  text-xs">
+                <Heart className="!h-6 !w-6" />
+                <Badge className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 rounded-full flex items-center justify-center text-[11px] font-semibold">
                   {totalWishlist || 0}
                 </Badge>
               </Link>
@@ -123,14 +122,13 @@ export function Header() {
 
             <Button
               variant="ghost"
-              size="icon"
-              className="relative  text-slate-700"
+              className="relative text-slate-700 h-12 w-12 rounded-lg "
               aria-label="Shopping cart"
               asChild
             >
               <Link href="/cart">
-                <ShoppingCart className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center  text-xs">
+                <ShoppingCart className="!h-6 !w-6" />
+                <Badge className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 rounded-full flex items-center justify-center text-[11px] font-semibold">
                   {totalQuantity || 0}
                 </Badge>
               </Link>
@@ -140,20 +138,19 @@ export function Header() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  size="icon"
-                  className="relative text-slate-700"
+                  className="relative text-slate-700 h-12 w-12 rounded-lg "
                   aria-label="Account menu"
                 >
-                  <User className="h-5 w-5" />
+                  <User className="!h-6 !w-6" />
                   {isAuthed && (
-                    <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-white" />
+                    <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-white" />
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-72 p-2">
                 {isAuthed ? (
                   <>
-                    <DropdownMenuLabel className="flex flex-col gap-0.5">
+                    <DropdownMenuLabel className="flex flex-col gap-0.5 px-3 py-2">
                       <span className="text-sm font-semibold truncate">
                         {user?.name || "Account"}
                       </span>
@@ -164,47 +161,47 @@ export function Header() {
                       )}
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
+                    <DropdownMenuItem asChild className="py-2.5 px-3 text-sm">
                       <Link href="/dashboard">
-                        <LayoutDashboard className="h-4 w-4 mr-2" />
+                        <LayoutDashboard className="h-4 w-4 mr-2.5" />
                         Dashboard
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
+                    <DropdownMenuItem asChild className="py-2.5 px-3 text-sm">
                       <Link href="/account">
-                        <UserCircle2 className="h-4 w-4 mr-2" />
+                        <UserCircle2 className="h-4 w-4 mr-2.5" />
                         My Account
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={handleLogout}
-                      className="text-red-600 focus:text-red-700 focus:bg-red-50"
+                      className="py-2.5 px-3 text-sm text-red-600 focus:text-red-700 focus:bg-red-50"
                     >
-                      <LogOut className="h-4 w-4 mr-2" />
+                      <LogOut className="h-4 w-4 mr-2.5" />
                       Logout
                     </DropdownMenuItem>
                   </>
                 ) : (
                   <>
-                    <DropdownMenuLabel>Welcome</DropdownMenuLabel>
+                    <DropdownMenuLabel className="px-3 py-2">Welcome</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
+                    <DropdownMenuItem asChild className="py-2.5 px-3 text-sm">
                       <Link href="/login">
-                        <LogIn className="h-4 w-4 mr-2" />
+                        <LogIn className="h-4 w-4 mr-2.5" />
                         Login
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
+                    <DropdownMenuItem asChild className="py-2.5 px-3 text-sm">
                       <Link href="/register">
-                        <UserPlus className="h-4 w-4 mr-2" />
+                        <UserPlus className="h-4 w-4 mr-2.5" />
                         Register
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
+                    <DropdownMenuItem asChild className="py-2.5 px-3 text-sm">
                       <Link href="/forgot-password">
-                        <KeyRound className="h-4 w-4 mr-2" />
+                        <KeyRound className="h-4 w-4 mr-2.5" />
                         Forgot Password
                       </Link>
                     </DropdownMenuItem>

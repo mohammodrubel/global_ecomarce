@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Menu as MenuIcon, Sparkles, Ticket, Copy } from "lucide-react";
+import { ChevronDown, Menu as MenuIcon, Ticket, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { useGetLatestCouponQuery } from "@/redux/fetchers/coupon/couponApi";
 import {
@@ -256,7 +256,7 @@ export function Navigation() {
               )}
 
               {/* Latest coupon */}
-              {latestCoupon ? (
+              {latestCoupon && (
                 <button
                   type="button"
                   onClick={copyCoupon}
@@ -270,14 +270,6 @@ export function Navigation() {
                   <span className="tracking-wider">{latestCoupon.code}</span>
                   <Copy className="h-3 w-3 opacity-70" />
                 </button>
-              ) : (
-                <Link
-                  href="/shop/new"
-                  className="ml-3 hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-cyan-500 text-slate-900 text-xs font-semibold hover:bg-cyan-400 transition-colors"
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  New Drops
-                </Link>
               )}
             </div>
           </div>

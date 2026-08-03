@@ -32,7 +32,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { removeCart } from "@/redux/fetchers/cart/cartSlice"
-import { useApplyCouponMutation } from "@/redux/fetchers/coupon/couponApi"
+import { useApplyCouponMutation, useGetLatestCouponQuery } from "@/redux/fetchers/coupon/couponApi"
 import { useCreateOrderMutation } from "@/redux/fetchers/order/orderApi"
 import { Ticket, X } from "lucide-react"
 import { RootState } from "@/redux/store"
@@ -99,6 +99,7 @@ export default function CheckoutPage() {
   const [createOrder] = useCreateOrderMutation()
 
   const [payment, setPayment] = useState<PaymentMethod>("cod")
+  const [deliveryZone, setDeliveryZone] = useState<"dhaka" | "outside">("dhaka")
   const [submitting, setSubmitting] = useState(false)
   const [form, setForm] = useState({
     firstName: "",
@@ -120,9 +121,11 @@ export default function CheckoutPage() {
     value: number
   } | null>(null)
   const [applyCoupon, { isLoading: applyingCoupon }] = useApplyCouponMutation()
+  const { data: latestCouponRes } = useGetLatestCouponQuery(undefined)
+  const hasActiveCoupon = Boolean(latestCouponRes?.data)
 
   const subtotal = cartInfo.totalAmount
-  const isDhaka = form.city.trim().toLowerCase() === "dhaka"
+  const isDhaka = deliveryZone === "dhaka"
   const shipping = isDhaka ? 70 : 120
   const discount = appliedCoupon?.discount || 0
   const total = Math.max(0, subtotal - discount) + shipping
@@ -513,27 +516,79 @@ export default function CheckoutPage() {
                       </button>
                     </div>
                   ) : (
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-                        <Input
-                          placeholder="Coupon code"
-                          value={couponCode}
-                          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                          className="pl-9 h-10 uppercase tracking-wider"
-                        />
+                    <>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                          <Input
+                            placeholder={hasActiveCoupon ? "Coupon code" : "No coupons available"}
+                            value={couponCode}
+                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                            disabled={!hasActiveCoupon}
+                            className="pl-9 h-10 uppercase tracking-wider disabled:cursor-not-allowed disabled:bg-slate-100"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={handleApplyCoupon}
+                          disabled={applyingCoupon || !hasActiveCoupon}
+                          variant="outline"
+                          className="h-10 border-[#1C398E] text-[#1C398E] hover:bg-blue-50"
+                        >
+                          {applyingCoupon ? "..." : "Apply"}
+                        </Button>
                       </div>
-                      <Button
-                        type="button"
-                        onClick={handleApplyCoupon}
-                        disabled={applyingCoupon}
-                        variant="outline"
-                        className="h-10 border-[#1C398E] text-[#1C398E] hover:bg-blue-50"
-                      >
-                        {applyingCoupon ? "..." : "Apply"}
-                      </Button>
-                    </div>
+                      {!hasActiveCoupon && (
+                        <p className="text-[11px] text-slate-500 mt-1.5">
+                          No active coupons right now
+                        </p>
+                      )}
+                    </>
                   )}
+                </div>
+
+                {/* Delivery zone */}
+                <div className="mb-4 rounded-xl border border-slate-200 p-3 bg-slate-50/60">
+                  <p className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+                    <Truck className="h-3.5 w-3.5 text-[#1C398E]" />
+                    Delivery Zone
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(
+                      [
+                        { value: "dhaka", title: "Inside Dhaka", price: 70 },
+                        { value: "outside", title: "Outside Dhaka", price: 120 },
+                      ] as { value: "dhaka" | "outside"; title: string; price: number }[]
+                    ).map(({ value, title, price }) => {
+                      const active = deliveryZone === value
+                      const id = `sum-zone-${value}`
+                      return (
+                        <label
+                          key={value}
+                          htmlFor={id}
+                          className={`flex items-center gap-2 rounded-lg border p-2.5 cursor-pointer transition-all ${
+                            active
+                              ? "border-[#1C398E] bg-white shadow-sm"
+                              : "border-slate-200 bg-white hover:border-slate-300"
+                          }`}
+                        >
+                          <input
+                            id={id}
+                            type="radio"
+                            name="sum-deliveryZone"
+                            value={value}
+                            checked={active}
+                            onChange={() => setDeliveryZone(value)}
+                            className="h-4 w-4 accent-[#1C398E] cursor-pointer flex-shrink-0"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold text-slate-900 truncate">{title}</p>
+                            <p className="text-[11px] text-slate-500">৳{price}</p>
+                          </div>
+                        </label>
+                      )
+                    })}
+                  </div>
                 </div>
 
                 <div className="space-y-2.5 mb-5">
@@ -556,11 +611,6 @@ export default function CheckoutPage() {
                     </span>
                     <span className="text-slate-900 font-medium">৳{shipping.toFixed(2)}</span>
                   </div>
-                  {!form.city.trim() && (
-                    <div className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-1.5">
-                      Enter city to confirm delivery charge (Dhaka ৳70 · Outside ৳120)
-                    </div>
-                  )}
                   <Separator />
                   <div className="flex justify-between items-baseline">
                     <span className="text-base font-bold text-slate-900">Total</span>

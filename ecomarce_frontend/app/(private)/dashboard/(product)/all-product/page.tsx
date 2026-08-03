@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -58,10 +58,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ChangeProductImageDialog, {
   ImageDialogMode,
 } from "../../_components/ChangeProductImageDialog";
+import { Pagination } from "@/components/Pagination";
 
 export default function ProductTable() {
-  const { isLoading, isError, data } = useGetAllProductsQuery(undefined);
-  const { data: ordersRes } = useGetAllOrdersQuery(undefined);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isChangeImageDialogOpen, setIsChangeImageDialogOpen] = useState(false);
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
@@ -72,6 +71,20 @@ export default function ProductTable() {
   const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+
+  const queryParams = useMemo(() => {
+    const params: { name: string; value: string }[] = [
+      { name: "limit", value: limit.toString() },
+      { name: "page", value: page.toString() },
+    ];
+    if (search) params.push({ name: "searchTerm", value: search });
+    return params;
+  }, [search, page, limit]);
+
+  const { isLoading, isError, data } = useGetAllProductsQuery(queryParams);
+  const { data: ordersRes } = useGetAllOrdersQuery(undefined);
 
   const [deleteProduct] = useDeleteProductMutation();
 
@@ -88,19 +101,12 @@ export default function ProductTable() {
     return map;
   }, [ordersRes]);
 
-  const filteredProducts = useMemo(() => {
-    const all: Product[] = data?.data || [];
-    return all.filter((p) => {
-      if (search) {
-        const q = search.toLowerCase();
-        const hit =
-          p.name?.toLowerCase().includes(q) ||
-          p.sku?.toLowerCase().includes(q) ||
-          p.subcategory?.toLowerCase().includes(q) ||
-          p.category?.name?.toLowerCase().includes(q) ||
-          p.brand?.name?.toLowerCase().includes(q);
-        if (!hit) return false;
-      }
+  const pageProducts: Product[] = data?.data || [];
+  const meta = data?.meta || { page: 1, limit, total: 0 };
+  const totalPages = Math.max(1, Math.ceil(meta.total / meta.limit));
+
+  const displayedProducts = useMemo(() => {
+    return pageProducts.filter((p) => {
       if (dateFrom && new Date(p.createdAt) < new Date(dateFrom)) return false;
       if (dateTo) {
         const end = new Date(dateTo);
@@ -109,7 +115,16 @@ export default function ProductTable() {
       }
       return true;
     });
-  }, [data, search, dateFrom, dateTo]);
+  }, [pageProducts, dateFrom, dateTo]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleView = (product: Product) => {
     setViewingProduct(product);
@@ -200,14 +215,14 @@ export default function ProductTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredProducts.length === 0 && (
+            {displayedProducts.length === 0 && (
               <TableRow>
                 <TableCell colSpan={9} className="text-center py-10 text-sm text-slate-500">
                   No products match the current filters.
                 </TableCell>
               </TableRow>
             )}
-            {filteredProducts.map((product: Product) => (
+            {displayedProducts.map((product: Product) => (
               <TableRow key={product.id}>
                 <TableCell>
                   <div className="relative group">
@@ -349,6 +364,16 @@ export default function ProductTable() {
           </TableBody>
         </Table>
       </div>
+
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          limit={meta.limit}
+          total={meta.total}
+        />
+      )}
 
       {/* View Product Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
