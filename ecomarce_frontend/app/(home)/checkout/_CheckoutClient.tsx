@@ -37,7 +37,7 @@ import { useCreateOrderMutation } from "@/redux/fetchers/order/orderApi"
 import { Ticket, X } from "lucide-react"
 import { RootState } from "@/redux/store"
 
-type PaymentMethod = "cod" | "bkash"
+type PaymentMethod = "cod" | "eps"
 
 type FieldProps = {
   id: string
@@ -167,13 +167,9 @@ export default function CheckoutPage() {
       toast.error("Cart is empty")
       return
     }
-    if (payment === "bkash") {
-      toast.info("bKash coming soon. Choose Cash on Delivery.")
-      return
-    }
     setSubmitting(true)
     try {
-      await createOrder({
+      const res: any = await createOrder({
         fullName: `${form.firstName} ${form.lastName}`.trim(),
         email: form.email,
         phone: form.phone,
@@ -182,13 +178,22 @@ export default function CheckoutPage() {
         postalCode: form.postalCode,
         country: form.country,
         notes: form.notes || undefined,
-        paymentMethod: "COD",
+        paymentMethod: payment === "eps" ? "EPS" : "COD",
         couponCode: appliedCoupon?.code || undefined,
         items: cartInfo.products.map((p: any) => ({
           productId: p.id,
           quantity: p.quantity || 1,
         })),
       }).unwrap()
+
+      const redirectUrl = res?.data?.redirectUrl
+      if (payment === "eps" && redirectUrl) {
+        dispatch(removeCart())
+        toast.success("Redirecting to EPS gateway…")
+        window.location.href = redirectUrl
+        return
+      }
+
       toast.success("Order placed successfully")
       dispatch(removeCart())
       router.push("/dashboard/orders")
@@ -372,14 +377,14 @@ export default function CheckoutPage() {
                         accentBg: "bg-blue-50",
                       },
                       {
-                        value: "bkash",
-                        title: "bKash",
-                        subtitle: "Mobile wallet payment",
+                        value: "eps",
+                        title: "EPS Payment Gateway",
+                        subtitle: "Cards, mobile banking, wallets",
                         Icon: Smartphone,
-                        disabled: true,
-                        badge: "Coming soon",
-                        accent: "text-pink-600",
-                        accentBg: "bg-pink-50",
+                        disabled: false,
+                        badge: "Secure",
+                        accent: "text-emerald-600",
+                        accentBg: "bg-emerald-50",
                       },
                     ] as {
                       value: PaymentMethod

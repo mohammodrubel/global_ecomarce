@@ -21,4 +21,14 @@ export default {
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
   },
+  frontend_url: process.env.FRONTEND_URL || 'http://localhost:3000',
+  backend_url: process.env.BACKEND_URL || 'http://localhost:9000',
+  eps: {
+    base_url: process.env.EPS_BASE_URL || 'https://sandboxpgapi.eps.com.bd',
+    username: process.env.EPS_USERNAME || '',
+    password: process.env.EPS_PASSWORD || '',
+    merchant_id: process.env.EPS_MERCHANT_ID || '',
+    store_id: process.env.EPS_STORE_ID || '',
+    hash_key: process.env.EPS_HASH_KEY || '',
+  },
 };

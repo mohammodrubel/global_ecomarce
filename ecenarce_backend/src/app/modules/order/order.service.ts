@@ -2,6 +2,9 @@ import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import prisma from '../../utils/prisma';
 import { OrderStatus, PaymentMethod } from '@prisma/client';
+import config from '../../config';
+import { initializeEPS } from '../payment/eps.client';
+import { PaymentService } from '../payment/payment.service';
 
 type CartItem = {
   productId: string;
@@ -94,6 +97,10 @@ const CreateOrder = async (userId: string, payload: CreateOrderInput) => {
 
   const totalPrice = Math.max(0, subtotal - discount) + shipping;
 
+  const paymentMethod: PaymentMethod = payload.paymentMethod || 'COD';
+  const merchantTransactionId =
+    paymentMethod === 'EPS' ? PaymentService.genMerchantTxnId() : null;
+
   // Transaction: create order + decrement stock + bump coupon usage
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
@@ -112,7 +119,8 @@ const CreateOrder = async (userId: string, payload: CreateOrderInput) => {
         couponCode: appliedCouponCode,
         shipping,
         totalPrice,
-        paymentMethod: payload.paymentMethod || 'COD',
+        paymentMethod,
+        merchantTransactionId,
         items: {
           create: itemsData,
         },
@@ -138,6 +146,47 @@ const CreateOrder = async (userId: string, payload: CreateOrderInput) => {
 
     return created;
   });
+
+  if (paymentMethod === 'EPS' && merchantTransactionId) {
+    const productList = order.items.map((it) => ({
+      ProductName: it.product?.name || 'Product',
+      NoOfItem: String(it.quantity),
+      ProductProfile: it.product?.images?.[0] || '',
+      ProductCategory: '',
+      ProductPrice: String(it.price),
+    }));
+
+    const successUrl = `${config.backend_url}/api/payment/eps/success?orderId=${order.id}&mtid=${merchantTransactionId}`;
+    const failUrl = `${config.backend_url}/api/payment/eps/fail?orderId=${order.id}&mtid=${merchantTransactionId}`;
+    const cancelUrl = `${config.backend_url}/api/payment/eps/cancel?orderId=${order.id}&mtid=${merchantTransactionId}`;
+
+    try {
+      const { redirectUrl } = await initializeEPS({
+        merchantTransactionId,
+        customerOrderId: order.id,
+        totalAmount: order.totalPrice,
+        successUrl,
+        failUrl,
+        cancelUrl,
+        customerName: order.fullName,
+        customerEmail: order.email,
+        customerAddress: order.address,
+        customerCity: order.city,
+        customerPostcode: order.postalCode,
+        customerCountry: order.country,
+        customerPhone: order.phone,
+        productList,
+      });
+
+      return { ...order, redirectUrl };
+    } catch (err) {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { paymentStatus: 'FAILED' },
+      });
+      throw err;
+    }
+  }
 
   return order;
 };

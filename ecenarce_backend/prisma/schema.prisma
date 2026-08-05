@@ -165,29 +165,40 @@ enum OrderStatus {
 
 enum PaymentMethod {
   COD
-  BKASH
+  EPS
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
 }
 
 model Order {
-  id            String        @id @default(uuid())
-  userId        String
-  fullName      String
-  email         String
-  phone         String
-  address       String
-  city          String
-  postalCode    String
-  country       String
-  notes         String?
-  subtotal      Float
-  discount      Float         @default(0)
-  couponCode    String?
-  shipping      Float         @default(0)
-  totalPrice    Float
-  paymentMethod PaymentMethod @default(COD)
-  status        OrderStatus   @default(PENDING)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id                    String        @id @default(uuid())
+  userId                String
+  fullName              String
+  email                 String
+  phone                 String
+  address               String
+  city                  String
+  postalCode            String
+  country               String
+  notes                 String?
+  subtotal              Float
+  discount              Float         @default(0)
+  couponCode            String?
+  shipping              Float         @default(0)
+  totalPrice            Float
+  paymentMethod         PaymentMethod @default(COD)
+  paymentStatus         PaymentStatus @default(PENDING)
+  merchantTransactionId String?       @unique
+  epsTransactionId      String?
+  paidAt                DateTime?
+  status                OrderStatus   @default(PENDING)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
 
   user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   items OrderItem[]
