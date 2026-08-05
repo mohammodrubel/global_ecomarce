@@ -17,10 +17,32 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Help Center | RocksMart",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Help Center",
   description:
-    "Find answers, guides, and support for everything RocksMart — orders, shipping, returns, account, and more.",
+    "Find answers, guides, and support for everything RocksMart — orders, shipping, returns, account, payments, and more.",
+  keywords: [
+    "help center",
+    "customer support",
+    "RocksMart help",
+    "order help",
+    "shipping help",
+    "return help",
+  ],
+  alternates: { canonical: "/help" },
+  openGraph: {
+    title: "Help Center | RocksMart",
+    description: "Answers, guides, and support for RocksMart shoppers.",
+    url: "/help",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Help Center | RocksMart",
+    description: "Answers, guides, and support for RocksMart shoppers.",
+  },
 };
 
 const CATEGORIES = [

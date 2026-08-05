@@ -53,14 +53,6 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    label: "Account",
-    subItems: [
-      { label: "My Profile", href: "/account/profile" },
-      { label: "Order History", href: "/account/orders" },
-      { label: "Addresses", href: "/account/addresses" },
-    ],
-  },
-  {
     label: "About",
     href: "/about",
   },

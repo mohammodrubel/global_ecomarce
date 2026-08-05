@@ -1,12 +1,14 @@
 import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
 import prisma from '../../utils/prisma';
+import { sendImageCloudinary } from '../../utils/sendImageToCloudinary';
 
 const userSafeSelect = {
   id: true,
   full_name: true,
   email: true,
   role: true,
+  profile_photo: true,
   createdAt: true,
   updatedAt: true,
 };
@@ -101,6 +103,34 @@ const UpdateMe = async (
   return result;
 };
 
+const UpdateMyPhoto = async (id: string, file: Express.Multer.File) => {
+  const existing = await prisma.user.findFirst({
+    where: { id, isDeleted: false },
+  });
+  if (!existing) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+  if (!file) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Image is required');
+  }
+
+  const imageName =
+    new Date().toTimeString().replace(/:/g, '-') + '-' + file.originalname;
+
+  const uploadResult: any = await sendImageCloudinary(
+    file.buffer,
+    imageName,
+    'user_profiles',
+  );
+
+  const result = await prisma.user.update({
+    where: { id },
+    data: { profile_photo: uploadResult.secure_url },
+    select: userSafeSelect,
+  });
+  return result;
+};
+
 const DeleteUser = async (id: string) => {
   await prisma.user.update({
     where: {
@@ -117,5 +147,6 @@ export const UserService = {
   GetSingleUser,
   GetMe,
   UpdateMe,
+  UpdateMyPhoto,
   DeleteUser,
 };

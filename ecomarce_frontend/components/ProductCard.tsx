@@ -97,7 +97,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       dispatch(removeFromWishlist(product.id));
       toast.info("Removed from wishlist");
     } else {
-      dispatch(addToWishlist(product));
+      dispatch(addToWishlist(product as any));
       toast.success("Added to wishlist");
     }
   };

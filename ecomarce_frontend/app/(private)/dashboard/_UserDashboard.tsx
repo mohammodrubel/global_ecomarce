@@ -188,9 +188,18 @@ export default function UserDashboardHome() {
 
         <SectionCard title="Profile">
           <div className="flex items-center gap-3 mb-4">
-            <div className="h-12 w-12 rounded-full bg-slate-900 text-white flex items-center justify-center font-semibold text-sm">
-              {initials}
-            </div>
+            {me?.profile_photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={me.profile_photo}
+                alt="Profile"
+                className="h-12 w-12 rounded-full object-cover border border-slate-200"
+              />
+            ) : (
+              <div className="h-12 w-12 rounded-full bg-slate-900 text-white flex items-center justify-center font-semibold text-sm">
+                {initials}
+              </div>
+            )}
             <div className="min-w-0">
               <p className="font-semibold text-slate-900 truncate">
                 {me?.full_name || displayName}

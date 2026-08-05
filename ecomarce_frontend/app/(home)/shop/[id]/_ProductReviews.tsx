@@ -1,11 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star } from "lucide-react";
 
 interface ReviewUser {
   id: string;
   full_name: string;
+  profile_photo?: string | null;
 }
 
 interface Review {
@@ -78,6 +79,12 @@ export default function ProductReviews({
                 >
                   <div className="flex items-start gap-4">
                     <Avatar className="h-10 w-10 border">
+                      {review.user?.profile_photo && (
+                        <AvatarImage
+                          src={review.user.profile_photo}
+                          alt={review.user.full_name}
+                        />
+                      )}
                       <AvatarFallback>{initials}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">

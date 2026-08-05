@@ -1,10 +1,25 @@
 import { FileText, Calendar, Mail } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Terms of Service | RocksMart",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms of Service",
   description:
-    "Read the RocksMart Terms of Service — the rules and guidelines for using our marketplace.",
+    "Read the RocksMart Terms of Service — the rules and guidelines for using our marketplace, purchases, accounts, and content.",
+  keywords: ["terms of service", "user agreement", "RocksMart terms", "legal"],
+  alternates: { canonical: "/terms" },
+  openGraph: {
+    title: "Terms of Service | RocksMart",
+    description: "Rules and guidelines for using RocksMart.",
+    url: "/terms",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Terms of Service | RocksMart",
+    description: "Rules and guidelines for using RocksMart.",
+  },
 };
 
 const SECTIONS = [

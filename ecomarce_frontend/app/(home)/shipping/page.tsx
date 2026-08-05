@@ -13,10 +13,32 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Shipping Info | RocksMart",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Shipping Info",
   description:
-    "Delivery times, shipping rates, coverage zones, and everything about how RocksMart gets your order to you.",
+    "Delivery times, shipping rates, coverage zones, express options, and everything about how RocksMart ships orders.",
+  keywords: [
+    "shipping info",
+    "delivery times",
+    "shipping rates",
+    "free shipping",
+    "express delivery",
+    "RocksMart shipping",
+  ],
+  alternates: { canonical: "/shipping" },
+  openGraph: {
+    title: "Shipping Info | RocksMart",
+    description: "Delivery times, rates, and coverage zones.",
+    url: "/shipping",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Shipping Info | RocksMart",
+    description: "Delivery times, rates, and coverage zones.",
+  },
 };
 
 const OPTIONS = [

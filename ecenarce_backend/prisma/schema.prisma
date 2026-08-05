@@ -9,14 +9,15 @@ datasource db {
 
 // --------------------- USER ---------------------
 model User {
-  id        String   @id @default(uuid())
-  full_name String
-  email     String   @unique
-  password  String
-  role      UserRole @default(USER)
-  isDeleted Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(uuid())
+  full_name     String
+  email         String   @unique
+  password      String
+  role          UserRole @default(USER)
+  profile_photo String?
+  isDeleted     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   orders  Order[]
   reviews Review[]

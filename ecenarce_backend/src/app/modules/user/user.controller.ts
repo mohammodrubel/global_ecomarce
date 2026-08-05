@@ -45,6 +45,19 @@ const UpdateMe = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const UpdateMyPhoto = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.UpdateMyPhoto(
+    req.user.id,
+    req.file as Express.Multer.File,
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Profile photo updated successfully',
+    data: result,
+  });
+});
+
 const DeleteUser = catchAsync(async (req: Request, res: Response) => {
   const id = req.params?.id;
   await UserService.DeleteUser(id);
@@ -59,5 +72,6 @@ export const UserController = {
   GetSingleUser,
   GetMe,
   UpdateMe,
+  UpdateMyPhoto,
   DeleteUser,
 };

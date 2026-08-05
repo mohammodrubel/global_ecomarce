@@ -15,10 +15,32 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "About Us | RocksMart",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Us",
   description:
-    "Learn about RocksMart — our mission, values, and commitment to delivering quality products worldwide.",
+    "Learn about RocksMart — our mission, values, team, and commitment to delivering quality products worldwide with fast shipping and top customer service.",
+  keywords: [
+    "about RocksMart",
+    "our mission",
+    "company values",
+    "ecommerce team",
+    "trusted online store",
+  ],
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About RocksMart",
+    description:
+      "Our mission, values, and commitment to delivering quality products worldwide.",
+    url: "/about",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About RocksMart",
+    description: "Our mission, values, and commitment to quality.",
+  },
 };
 
 const STATS = [

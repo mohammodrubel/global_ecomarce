@@ -11,10 +11,31 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Privacy Policy | RocksMart",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
   description:
-    "How RocksMart collects, uses, and protects your personal information.",
+    "How RocksMart collects, uses, stores, and protects your personal information. Cookies, data sharing, and your rights.",
+  keywords: [
+    "privacy policy",
+    "data protection",
+    "cookies",
+    "GDPR",
+    "RocksMart privacy",
+  ],
+  alternates: { canonical: "/privacy" },
+  openGraph: {
+    title: "Privacy Policy | RocksMart",
+    description: "How we collect, use, and protect your data.",
+    url: "/privacy",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Privacy Policy | RocksMart",
+    description: "How we collect, use, and protect your data.",
+  },
 };
 
 const HIGHLIGHTS = [

@@ -29,6 +29,7 @@ import { useState, FormEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { logout } from "@/redux/fetchers/auth/authSlice";
+import { useMeQuery } from "@/redux/fetchers/auth/authApi";
 import { toast } from "sonner";
 
 export function Header() {
@@ -42,7 +43,17 @@ export function Header() {
     (state: RootState) => state.wishlist?.totalwishlistProduct
   );
   const user = useSelector((state: RootState) => state.auth?.user);
+  const token = useSelector((state: RootState) => state.auth?.token);
   const isAuthed = Boolean(user);
+  const { data: meRes } = useMeQuery(undefined, { skip: !token });
+  const profilePhoto: string | null = meRes?.data?.profile_photo || null;
+  const displayName = meRes?.data?.full_name || user?.name || "User";
+  const avatarInitials = (displayName || "U")
+    .split(" ")
+    .map((s: string) => s[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   const router = useRouter();
 
@@ -138,10 +149,23 @@ export function Header() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative text-slate-700 h-12 w-12 rounded-lg "
+                  className="relative text-slate-700 h-12 w-12 rounded-lg p-0"
                   aria-label="Account menu"
                 >
-                  <User className="!h-6 !w-6" />
+                  {isAuthed && profilePhoto ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={profilePhoto}
+                      alt={displayName}
+                      className="h-9 w-9 rounded-full object-cover border border-slate-200"
+                    />
+                  ) : isAuthed ? (
+                    <span className="h-9 w-9 rounded-full bg-[#1C398E] text-white flex items-center justify-center text-xs font-semibold">
+                      {avatarInitials}
+                    </span>
+                  ) : (
+                    <User className="!h-6 !w-6" />
+                  )}
                   {isAuthed && (
                     <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-white" />
                   )}

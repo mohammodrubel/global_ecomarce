@@ -18,6 +18,14 @@ export const authApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [tagTypes.user],
     }),
+    updateMyPhoto: builder.mutation<{ success: boolean; data: any }, FormData>({
+      query: (data) => ({
+        url: `/user/me/photo`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.user],
+    }),
     changePassword: builder.mutation({
       query: (data) => ({
         url: `/auth/change-password`,
@@ -51,6 +59,7 @@ export const authApi = baseApi.injectEndpoints({
 export const {
   useMeQuery,
   useUpdateMeMutation,
+  useUpdateMyPhotoMutation,
   useChangePasswordMutation,
   useLoginMutation,
   useLogoutFromDbMutation,

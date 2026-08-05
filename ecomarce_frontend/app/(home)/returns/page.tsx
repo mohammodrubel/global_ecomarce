@@ -14,10 +14,31 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Returns & Refunds | RocksMart",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Returns & Refunds",
   description:
-    "Learn about our 14-day return policy, refund process, and what items are eligible for return.",
+    "RocksMart 14-day return policy, refund process, eligible items, and how to request a return online.",
+  keywords: [
+    "returns",
+    "refunds",
+    "return policy",
+    "money back",
+    "RocksMart returns",
+  ],
+  alternates: { canonical: "/returns" },
+  openGraph: {
+    title: "Returns & Refunds | RocksMart",
+    description: "14-day return policy and refund process.",
+    url: "/returns",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Returns & Refunds | RocksMart",
+    description: "14-day return policy and refund process.",
+  },
 };
 
 const HIGHLIGHTS = [

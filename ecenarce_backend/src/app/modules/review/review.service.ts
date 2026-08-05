@@ -82,7 +82,7 @@ const GetProductReviews = async (productId: string) => {
     orderBy: { createdAt: 'desc' },
     include: {
       user: {
-        select: { id: true, full_name: true },
+        select: { id: true, full_name: true, profile_photo: true },
       },
     },
   });
